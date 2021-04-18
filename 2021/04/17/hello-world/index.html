@@ -353,7 +353,6 @@
 
 
 
-    <div class="comments gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -412,27 +411,6 @@
 
 
 
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css">
-
-<script>
-NexT.utils.loadComments('.gitalk-container', () => {
-  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js', () => {
-    var gitalk = new Gitalk({
-      clientID    : 'e0a87f6290d9ff2cf1f6',
-      clientSecret: 'bcce9e61e06685739s9151045844e2dc8ea8a3cf',
-      repo        : 'blog-comment',
-      owner       : 'wangjifeng0205',
-      admin       : ['wangjifeng0205'],
-      id          : '3003e8c4e193a41151eb98d423735bcb',
-      proxy       : 'https://netnr-proxy.cloudno.de/https://github.com/login/oauth/access_token',
-        language: 'zh-CN',
-      distractionFreeMode: true
-    });
-    gitalk.render(document.querySelector('.gitalk-container'));
-  }, window.Gitalk);
-});
-</script>
 
 </body>
 </html>
