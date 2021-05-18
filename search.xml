@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>细说SpringBoot的自动装配原理</title>
-    <url>/wangjifeng0205.github.io/2021/05/15/%E7%BB%86%E8%AF%B4SpringBoot%E7%9A%84%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D%E5%8E%9F%E7%90%86/</url>
+    <url>/wangjifeng0205.github.io/SpringBoot/%E7%BB%86%E8%AF%B4SpringBoot%E7%9A%84%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D%E5%8E%9F%E7%90%86/</url>
     <content><![CDATA[<h2 id="1-什么是SpringBoot"><a href="#1-什么是SpringBoot" class="headerlink" title="1. 什么是SpringBoot?"></a>1. 什么是SpringBoot?</h2><p>对于spring家族的框架来说，我们接触的比较多的可能就是spring，springMVC这两个框架了。<strong>Spring的核心就是IOC和AOP。IOC就是控制反转，即将对象的创建，对象的销毁，对象间的依赖关系等等权力交给Spring，说白了就是让Spring去控制对象的生命周期和对象间的依赖关系。在处理对象间的依赖关系的时候，我们只需要告诉Spring我们需要哪些对象，Spring就会帮助我们配置好，Spring将我们需要的对象配置的过程就是DI(依赖注入)。AOP就是面向切面编程，面向切面编程是一种思想，Spring框架很优雅的实现了这种思想，它很方便的帮助我们在全局的纵向业务逻辑之上，横向的插入一段逻辑。</strong></p>
 <p>在以前没有SpringBoot的时候，我们需要配置的方式是在XML文件中配置好对象的依赖关系，Spring它会读取这些XML文件，从而进行配置。但是当代码变多的时候，需要的配置会越来越多，大量繁琐的XML文件让我们使用Spring框架是很麻烦的，Spring框架本身是优雅的，轻量级的，但是它的配置却是繁琐的，重量级的。为了减轻这种繁琐的工作，提升工作效率，SpringBoot应运而生，下面欢迎我们的主角SpringBoot。</p>
 <p>SpringBoot框架是个划时代的Java框架(个人观点)，它的核心思想就是<strong>约定优于配置</strong>。<span id="more"></span> 它将一些需要集成的配置已经提前帮我们配置好了，我们不用去关注这些，只需要按照约定的规则使用，就可以很好，很高效的处理业务。简单来说就是，SpringBoot框架是为了能够帮助使用Spring框架的开发者快速高效的构建一个基于Spirng框架以及Spring生态体系的应用解决方案。它是对“约定优于配置”这个理念下的一个最佳实践。因此它是一个服务于框架的框架，服务的范围是简化配置文件。SpringBoot的核心就是帮助我们简化配置，进行自动配置，自动配置的原理稍后会讲到。SpringBoot的另一个特点就是非常容易进行扩展自动配置，比如说你自己有需要配置的东西也可以集成到SpringBoot中，具体的就不细讲，大家可以自行百度。</p>
