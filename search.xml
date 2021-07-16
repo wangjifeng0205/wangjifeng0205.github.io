@@ -9,7 +9,7 @@
 <p>上述代码大家都很熟悉，就一行代码很重要：</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">SpringApplication.run(TestApplication.class, args);</span><br></pre></td></tr></table></figure>
 
-<p>接下来我们一起看看这个类。</p>
+<p>接下来我们一起看看这个类。<span id="more"></span></p>
 <h2 id="1-静态方法SpringApplication-run"><a href="#1-静态方法SpringApplication-run" class="headerlink" title="1. 静态方法SpringApplication.run()"></a>1. 静态方法SpringApplication.run()</h2><p>这个方法的代码如下：</p>
 <img src="/images/markdown_images/image-20210716170426619.png" alt="image-20210716170426619" style="zoom:50%;" />
 

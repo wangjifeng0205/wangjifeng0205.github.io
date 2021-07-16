@@ -258,7 +258,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2021-07-16 18:31:22 / 修改时间：18:36:59" itemprop="dateCreated datePublished" datetime="2021-07-16T18:31:22+08:00">2021-07-16</time>
+      <time title="创建时间：2021-07-16 18:31:22 / 修改时间：18:38:28" itemprop="dateCreated datePublished" datetime="2021-07-16T18:31:22+08:00">2021-07-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -302,36 +302,15 @@
 <p>上述代码大家都很熟悉，就一行代码很重要：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SpringApplication.run(TestApplication.class, args);</span><br></pre></td></tr></table></figure>
 
-<p>接下来我们一起看看这个类。</p>
-<h2 id="1-静态方法SpringApplication-run"><a href="#1-静态方法SpringApplication-run" class="headerlink" title="1. 静态方法SpringApplication.run()"></a>1. 静态方法SpringApplication.run()</h2><p>这个方法的代码如下：</p>
-<img src="/images/markdown_images/image-20210716170426619.png" alt="image-20210716170426619" style="zoom:50%;" />
-
-<p>这个方法就做了两件事情，首先初始化了一个SpringBootApplication对象，然后执行这个对象的run方法。接下来我们细看一下这两个步骤。</p>
-<h2 id="2-构造方法SpringApplication"><a href="#2-构造方法SpringApplication" class="headerlink" title="2. 构造方法SpringApplication()"></a>2. 构造方法SpringApplication()</h2><p>我们首先看一下构造方法，具体的逻辑实现如下，此处只看大体的流程，具体的细节大家可以自行查看源码。</p>
-<img src="/images/markdown_images/image-20210716171807074.png" alt="image-20210716171807074" style="zoom:50%;" />
-
-<p>在初始化这个对象的过程中，Spring默认的进行了一些配置。</p>
-<p>首先判断了应用的类型，一般我们都是用tomcat容器，这是一个servlet容器。</p>
-<p>接着从META-INF/spring.factories文件中将所有的要注册的初始化器赋值给了bootstrapRegistryInitializers这个属性，注意这个实例在后面执行实例方法SpringApplication.run()的时候会用到。</p>
-<p>接着获取了META-INF/spring.factories文件中的ApplicationContextInitializer和ApplicationListener的实例分别复制给了属性initializers和listeners。</p>
-<p>最后找到main方法所在的类字节码对象。</p>
-<h2 id="3-实例方法SpringApplication-run"><a href="#3-实例方法SpringApplication-run" class="headerlink" title="3. 实例方法SpringApplication.run()"></a>3. 实例方法SpringApplication.run()</h2><p>然后运行了SpringApplication.run这个实例方法，创建了一个Spring应用上下文对象：</p>
-<p>run方法的代码太长了，我们分割为三个部分进行说明，大概如下：</p>
-<img src="/images/markdown_images/image-20210716172719715.png" alt="image-20210716172719715" style="zoom:50%;" />
-
-<p>首先我们说第一部分：</p>
-<img src="/images/markdown_images/image-20210716173539789.png" alt="image-20210716173539789" style="zoom:50%;" />
-
-<p>第一部分主要将在构造方法中设置好的初始化器和监听器运行起来，调用他们对应的方法，进行一些初步操作，具体的操作请自行找到META-INF/spring.factories文件，查看文件里面定义好的类的具体逻辑实现。</p>
-<p>第二部是最重要的一部分：</p>
-<img src="/images/markdown_images/image-20210716175744548.png" alt="image-20210716175744548" style="zoom:50%;" />
-
-<p>主要是进行了spring应用上下文的配置，然后执行一些初始化操作。在执行上下文对象的过程中会将bean对象都初始化好，该依赖注入的依赖注入等等操作，@SpringBootApplication注解相关操作都会在这里进行触发。</p>
-<p>最后一部分：</p>
-<img src="/images/markdown_images/image-20210716181414891.png" alt="image-20210716181414891" style="zoom:50%;" />
-
-<p>启动监听器监听上下文，具体的监听器除了Spring事先准配好的，还有你自己实现的监听器。最终都是一个个的java.util.function.Consumer接口的实现类，然后执行这个接口的accept方法。</p>
-
+<p>接下来我们一起看看这个类。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/SpringBoot/springboot-autoconf2/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
