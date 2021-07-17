@@ -34,10 +34,20 @@
 <img src="/images/markdown_images/image-20210716175744548.png" alt="image-20210716175744548" style="zoom:50%;" />
 
 <p>主要是进行了spring应用上下文的配置，然后执行一些初始化操作。在执行上下文对象的过程中会将bean对象都初始化好，该依赖注入的依赖注入等等操作，@SpringBootApplication注解相关操作都会在这里进行触发。</p>
+<p>主要的方法就是refreshContext方法，这个方法对于不同类型的应用有不同的逻辑：</p>
+<ul>
+<li><p>如果是servlet容器，对应org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh()。</p>
+</li>
+<li><p>如果是是反应式容器，对应org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext.refresh()。</p>
+</li>
+<li><p>具体的逻辑大家可以自己查阅。</p>
+</li>
+</ul>
 <p>最后一部分：</p>
 <img src="/images/markdown_images/image-20210716181414891.png" alt="image-20210716181414891" style="zoom:50%;" />
 
 <p>启动监听器监听上下文，具体的监听器除了Spring事先准配好的，还有你自己实现的监听器。最终都是一个个的java.util.function.Consumer接口的实现类，然后执行这个接口的accept方法。</p>
+<p>以上就是springboot自动配置的全部了，大家如果对我的理解有疑问可以指出来，我们交流探讨一下。</p>
 ]]></content>
       <categories>
         <category>SpringBoot</category>
