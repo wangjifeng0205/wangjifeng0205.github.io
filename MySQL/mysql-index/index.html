@@ -21,35 +21,30 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
 
 <script class="next-config" data-name="main" type="application/json">{&quot;hostname&quot;:&quot;wangjifeng.net&quot;,&quot;root&quot;:&quot;&#x2F;&quot;,&quot;images&quot;:&quot;&#x2F;images&quot;,&quot;scheme&quot;:&quot;Gemini&quot;,&quot;version&quot;:&quot;8.4.0&quot;,&quot;exturl&quot;:false,&quot;sidebar&quot;:{&quot;position&quot;:&quot;left&quot;,&quot;display&quot;:&quot;post&quot;,&quot;padding&quot;:18,&quot;offset&quot;:12},&quot;copycode&quot;:true,&quot;bookmark&quot;:{&quot;enable&quot;:false,&quot;color&quot;:&quot;#222&quot;,&quot;save&quot;:&quot;auto&quot;},&quot;fancybox&quot;:false,&quot;mediumzoom&quot;:false,&quot;lazyload&quot;:false,&quot;pangu&quot;:false,&quot;comments&quot;:{&quot;style&quot;:&quot;tabs&quot;,&quot;active&quot;:null,&quot;storage&quot;:true,&quot;lazyload&quot;:false,&quot;nav&quot;:null},&quot;motion&quot;:{&quot;enable&quot;:true,&quot;async&quot;:false,&quot;transition&quot;:{&quot;post_block&quot;:&quot;fadeIn&quot;,&quot;post_header&quot;:&quot;fadeInDown&quot;,&quot;post_body&quot;:&quot;fadeInDown&quot;,&quot;coll_header&quot;:&quot;fadeInLeft&quot;,&quot;sidebar&quot;:&quot;fadeInUp&quot;}},&quot;prism&quot;:false,&quot;i18n&quot;:{&quot;placeholder&quot;:&quot;搜索...&quot;,&quot;empty&quot;:&quot;没有找到任何搜索结果：${query}&quot;,&quot;hits_time&quot;:&quot;找到 ${hits} 个搜索结果（用时 ${time} 毫秒）&quot;,&quot;hits&quot;:&quot;找到 ${hits} 个搜索结果&quot;},&quot;path&quot;:&quot;&#x2F;search.xml&quot;,&quot;localsearch&quot;:{&quot;enable&quot;:true,&quot;trigger&quot;:&quot;auto&quot;,&quot;top_n_per_article&quot;:1,&quot;unescape&quot;:false,&quot;preload&quot;:false}}</script>
-<meta name="description" content="上一篇说到@SpringBootApplication注解的作用，这一篇文章我们就从启动类来说明。一般的我们写启动类大体都如下： 12345public class TestApplication &amp;#123;    public static void main(String[] args) &amp;#123;        SpringApplication.run(TestApplication.">
+<meta name="description" content="索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。 MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：B+Tree 索引和Hash索引。我们详细介绍一下这两种索引及其优化的方法。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="细说SpringBoot的自动装配原理(下)">
-<meta property="og:url" content="https://wangjifeng.net/SpringBoot/springboot-autoconf2/index.html">
+<meta property="og:title" content="MySQL索引及其优化">
+<meta property="og:url" content="https://wangjifeng.net/MySQL/mysql-index/index.html">
 <meta property="og:site_name" content="wjf的个人博客">
-<meta property="og:description" content="上一篇说到@SpringBootApplication注解的作用，这一篇文章我们就从启动类来说明。一般的我们写启动类大体都如下： 12345public class TestApplication &amp;#123;    public static void main(String[] args) &amp;#123;        SpringApplication.run(TestApplication.">
+<meta property="og:description" content="索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。 MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：B+Tree 索引和Hash索引。我们详细介绍一下这两种索引及其优化的方法。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://wangjifeng.net/images/markdown_images/image-20210716170426619.png">
-<meta property="og:image" content="https://wangjifeng.net/images/markdown_images/image-20210716171807074.png">
-<meta property="og:image" content="https://wangjifeng.net/images/markdown_images/image-20210716172719715.png">
-<meta property="og:image" content="https://wangjifeng.net/images/markdown_images/image-20210716173539789.png">
-<meta property="og:image" content="https://wangjifeng.net/images/markdown_images/image-20210716175744548.png">
-<meta property="og:image" content="https://wangjifeng.net/images/markdown_images/image-20210716181414891.png">
-<meta property="article:published_time" content="2021-07-17T14:55:09.724Z">
-<meta property="article:modified_time" content="2021-07-17T14:56:42.544Z">
+<meta property="article:published_time" content="2021-07-22T05:09:16.491Z">
+<meta property="article:modified_time" content="2021-07-22T05:11:23.019Z">
 <meta property="article:author" content="wjf">
-<meta property="article:tag" content="SpringBoot">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="SQL优化">
+<meta property="article:tag" content="MySQL索引">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://wangjifeng.net/images/markdown_images/image-20210716170426619.png">
 
 
-<link rel="canonical" href="https://wangjifeng.net/SpringBoot/springboot-autoconf2/">
+<link rel="canonical" href="https://wangjifeng.net/MySQL/mysql-index/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{&quot;sidebar&quot;:&quot;&quot;,&quot;isHome&quot;:false,&quot;isPost&quot;:true,&quot;lang&quot;:&quot;zh-CN&quot;,&quot;comments&quot;:true,&quot;permalink&quot;:&quot;https:&#x2F;&#x2F;wangjifeng.net&#x2F;SpringBoot&#x2F;springboot-autoconf2&#x2F;&quot;,&quot;path&quot;:&quot;SpringBoot&#x2F;springboot-autoconf2&#x2F;&quot;,&quot;title&quot;:&quot;细说SpringBoot的自动装配原理(下)&quot;}</script>
+<script class="next-config" data-name="page" type="application/json">{&quot;sidebar&quot;:&quot;&quot;,&quot;isHome&quot;:false,&quot;isPost&quot;:true,&quot;lang&quot;:&quot;zh-CN&quot;,&quot;comments&quot;:true,&quot;permalink&quot;:&quot;https:&#x2F;&#x2F;wangjifeng.net&#x2F;MySQL&#x2F;mysql-index&#x2F;&quot;,&quot;path&quot;:&quot;MySQL&#x2F;mysql-index&#x2F;&quot;,&quot;title&quot;:&quot;MySQL索引及其优化&quot;}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">&quot;&quot;</script>
-<title>细说SpringBoot的自动装配原理(下) | wjf的个人博客</title><script src="/js/config.js"></script>
+<title>MySQL索引及其优化 | wjf的个人博客</title><script src="/js/config.js"></script>
   
 
 
@@ -156,7 +151,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95SpringApplication-run"><span class="nav-number">1.</span> <span class="nav-text">1. 静态方法SpringApplication.run()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95SpringApplication"><span class="nav-number">2.</span> <span class="nav-text">2. 构造方法SpringApplication()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%AE%9E%E4%BE%8B%E6%96%B9%E6%B3%95SpringApplication-run"><span class="nav-number">3.</span> <span class="nav-text">3. 实例方法SpringApplication.run()</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-B-Tree-%E7%B4%A2%E5%BC%95"><span class="nav-number">1.</span> <span class="nav-text">1. B+Tree 索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Hash-%E7%B4%A2%E5%BC%95"><span class="nav-number">2.</span> <span class="nav-text">2. Hash 索引</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%80%BB%E7%BB%93%E4%B8%A4%E7%A7%8D%E7%B1%BB%E5%9E%8B%E7%9A%84%E7%B4%A2%E5%BC%95"><span class="nav-number">2.1.</span> <span class="nav-text">3. 总结两种类型的索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">4. 索引优化</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -245,7 +240,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://wangjifeng.net/SpringBoot/springboot-autoconf2/">
+    <link itemprop="mainEntityOfPage" href="https://wangjifeng.net/MySQL/mysql-index/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/logoico.svg">
@@ -258,7 +253,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          细说SpringBoot的自动装配原理(下)
+          MySQL索引及其优化
         </h1>
 
         <div class="post-meta-container">
@@ -270,7 +265,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2021-07-17 22:55:09 / 修改时间：22:56:42" itemprop="dateCreated datePublished" datetime="2021-07-17T22:55:09+08:00">2021-07-17</time>
+      <time title="创建时间：2021-07-22 13:09:16 / 修改时间：13:11:23" itemprop="dateCreated datePublished" datetime="2021-07-22T13:09:16+08:00">2021-07-22</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -278,7 +273,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/SpringBoot/" itemprop="url" rel="index"><span itemprop="name">SpringBoot</span></a>
+          <a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a>
         </span>
     </span>
 
@@ -290,7 +285,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.6k</span>
+      <span>1.2k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -308,51 +303,37 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>上一篇说到@SpringBootApplication注解的作用，这一篇文章我们就从启动类来说明。一般的我们写启动类大体都如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(TestApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>上述代码大家都很熟悉，就一行代码很重要：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SpringApplication.run(TestApplication.class, args);</span><br></pre></td></tr></table></figure>
-
-<p>接下来我们一起看看这个类。<span id="more"></span></p>
-<h2 id="1-静态方法SpringApplication-run"><a href="#1-静态方法SpringApplication-run" class="headerlink" title="1. 静态方法SpringApplication.run()"></a>1. 静态方法SpringApplication.run()</h2><p>这个方法的代码如下：</p>
-<img src="/images/markdown_images/image-20210716170426619.png" alt="image-20210716170426619" style="zoom:50%;" />
-
-<p>这个方法就做了两件事情，首先初始化了一个SpringBootApplication对象，然后执行这个对象的run方法。接下来我们细看一下这两个步骤。</p>
-<h2 id="2-构造方法SpringApplication"><a href="#2-构造方法SpringApplication" class="headerlink" title="2. 构造方法SpringApplication()"></a>2. 构造方法SpringApplication()</h2><p>我们首先看一下构造方法，具体的逻辑实现如下，此处只看大体的流程，具体的细节大家可以自行查看源码。</p>
-<img src="/images/markdown_images/image-20210716171807074.png" alt="image-20210716171807074" style="zoom:50%;" />
-
-<p>在初始化这个对象的过程中，Spring默认的进行了一些配置。</p>
-<p>首先判断了应用的类型，一般我们都是用tomcat容器，这是一个servlet容器。</p>
-<p>接着从META-INF/spring.factories文件中将所有的要注册的初始化器赋值给了bootstrapRegistryInitializers这个属性，注意这个实例在后面执行实例方法SpringApplication.run()的时候会用到。</p>
-<p>接着获取了META-INF/spring.factories文件中的ApplicationContextInitializer和ApplicationListener的实例分别复制给了属性initializers和listeners。</p>
-<p>最后找到main方法所在的类字节码对象。</p>
-<h2 id="3-实例方法SpringApplication-run"><a href="#3-实例方法SpringApplication-run" class="headerlink" title="3. 实例方法SpringApplication.run()"></a>3. 实例方法SpringApplication.run()</h2><p>然后运行了SpringApplication.run这个实例方法，创建了一个Spring应用上下文对象：</p>
-<p>run方法的代码太长了，我们分割为三个部分进行说明，大概如下：</p>
-<img src="/images/markdown_images/image-20210716172719715.png" alt="image-20210716172719715" style="zoom:50%;" />
-
-<p>首先我们说第一部分：</p>
-<img src="/images/markdown_images/image-20210716173539789.png" alt="image-20210716173539789" style="zoom:50%;" />
-
-<p>第一部分主要将在构造方法中设置好的初始化器和监听器运行起来，调用他们对应的方法，进行一些初步操作，具体的操作请自行找到META-INF/spring.factories文件，查看文件里面定义好的类的具体逻辑实现。</p>
-<p>第二部是最重要的一部分：</p>
-<img src="/images/markdown_images/image-20210716175744548.png" alt="image-20210716175744548" style="zoom:50%;" />
-
-<p>主要是进行了spring应用上下文的配置，然后执行一些初始化操作。在执行上下文对象的过程中会将bean对象都初始化好，该依赖注入的依赖注入等等操作，@SpringBootApplication注解相关操作都会在这里进行触发。</p>
-<p>主要的方法就是refreshContext方法，这个方法对于不同类型的应用有不同的逻辑：</p>
+        <p>索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。</p>
+<p>MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：<strong>B+Tree 索引</strong>和<strong>Hash索引</strong>。我们详细介绍一下这两种索引及其优化的方法。<span id="more"></span></p>
+<h2 id="1-B-Tree-索引"><a href="#1-B-Tree-索引" class="headerlink" title="1. B+Tree 索引"></a>1. B+Tree 索引</h2><p>B+ Tree索引是大多数 MySQL 存储引擎的默认索引类型。它将对数据的无序IO操作变成了顺序IO操作。</p>
+<p>因为不再需要进行全表扫描，只需要对树进行搜索即可，所以查找速度快很多。</p>
+<p>因为 B+ Tree 的有序性，所以除了用于查找，还可以用于排序和分组。</p>
+<p>可以指定多个列作为索引列，多个索引列共同组成键。</p>
+<p><strong>适用于全键值、键值范围和键前缀查找，其中键前缀查找只适用于最左前缀查找。如果不是按照索引列的顺序进行查找，则无法使用索引。</strong></p>
+<h2 id="2-Hash-索引"><a href="#2-Hash-索引" class="headerlink" title="2. Hash 索引"></a>2. Hash 索引</h2><p>哈希索引能以 O(1) 时间进行查找，但是失去了有序性：</p>
 <ul>
-<li><p>如果是servlet容器，对应org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh()。</p>
-</li>
-<li><p>如果是是反应式容器，对应org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext.refresh()。</p>
-</li>
-<li><p>具体的逻辑大家可以自己查阅。</p>
-</li>
+<li>无法用于排序与分组；</li>
+<li>只支持精确查找，无法用于部分查找和范围查找。</li>
 </ul>
-<p>最后一部分：</p>
-<img src="/images/markdown_images/image-20210716181414891.png" alt="image-20210716181414891" style="zoom:50%;" />
-
-<p>启动监听器监听上下文，具体的监听器除了Spring事先准配好的，还有你自己实现的监听器。最终都是一个个的java.util.function.Consumer接口的实现类，然后执行这个接口的accept方法。</p>
-<p>以上就是springboot自动配置的全部了，大家如果对我的理解有疑问可以指出来，我们交流探讨一下。</p>
+<p>InnoDB 存储引擎有一个特殊的功能叫“自适应哈希索引”，当某个索引值被使用的非常频繁时，会在 B+Tree 索引之上再创建一个哈希索引，这样就让 B+Tree 索引具有哈希索引的一些优点，比如快速的哈希查找。</p>
+<h3 id="3-总结两种类型的索引"><a href="#3-总结两种类型的索引" class="headerlink" title="3. 总结两种类型的索引"></a>3. 总结两种类型的索引</h3><ul>
+<li>B+Tree-INDEX: 每一个叶子节点都包含指向下一个叶子节点的指针，从而方便叶子节点的范围遍历。B-Tree通常意味着所有的值都是按顺序存储的，并且每一个叶子页到根的距离相同，<strong>很适合查找范围数据</strong>。所以可以对诸如时间类型的字段加B+Tree索引。</li>
+<li>Hash-INDEX: 哈希索引基于哈希表实现，<strong>只有精确索引所有列的查询才有效</strong>。对于每一行数据，存储引擎都会对所有的索引列计算一个哈希码。哈希索引将所有的哈希码存储在索引中，同时在哈希表中保存指向每个数据的指针。</li>
+</ul>
+<h2 id="4-索引优化"><a href="#4-索引优化" class="headerlink" title="4. 索引优化"></a>4. 索引优化</h2><ul>
+<li><p>索引列的顺序：让选择性最强的索引列放在前面。比如一个表的主键就是选择性最强的。</p>
+</li>
+<li><p>对于 BLOB、TEXT 和 VARCHAR 类型的列，必须使用前缀索引，只索引开始的部分字符。必须遵循最左匹配原则。</p>
+</li>
+<li><p>独立的列，不参与表达式：</p>
+<p>在进行查询时，索引列不能是表达式的一部分，也不能是函数的参数，否则无法使用索引。</p>
+<p>例如下面的查询不能使用 actor_id 列的索引：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT actor_id FROM sakila.actor WHERE actor_id + 1 &#x3D; 5;</span><br></pre></td></tr></table></figure></li>
+<li><p>在需要使用多个列作为条件进行查询时，使用多列索引比使用多个单列索引性能更好。</p>
+<p>例如下面的语句中，最好把 actor_id 和 film_id 设置为多列索引：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SELECT film_id, actor_ id FROM sakila.film_actor</span><br><span class="line">WHERE actor_id &#x3D; 1 AND film_id &#x3D; 1;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>以上就是我对索引优化的简单总结，后面我会介绍一些其他的优化方式，比如主从复制，读写分离，SQL优化等等。</p>
 
     </div>
 
@@ -380,21 +361,20 @@
 </div>
 
           <div class="post-tags">
-              <a href="/tags/SpringBoot/" rel="tag"><i class="fa fa-tag"></i> SpringBoot</a>
+              <a href="/tags/MySQL/" rel="tag"><i class="fa fa-tag"></i> MySQL</a>
+              <a href="/tags/SQL%E4%BC%98%E5%8C%96/" rel="tag"><i class="fa fa-tag"></i> SQL优化</a>
+              <a href="/tags/MySQL%E7%B4%A2%E5%BC%95/" rel="tag"><i class="fa fa-tag"></i> MySQL索引</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/SpringBoot/springboot-autoconf1/" rel="prev" title="细说SpringBoot的自动装配原理(上)">
-                  <i class="fa fa-chevron-left"></i> 细说SpringBoot的自动装配原理(上)
+                <a href="/SpringBoot/springboot-autoconf2/" rel="prev" title="细说SpringBoot的自动装配原理(下)">
+                  <i class="fa fa-chevron-left"></i> 细说SpringBoot的自动装配原理(下)
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/MySQL/mysql-index/" rel="next" title="MySQL索引及其优化">
-                  MySQL索引及其优化 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
