@@ -1,50 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>MySQL索引及其优化</title>
-    <url>/MySQL/mysql-index/</url>
-    <content><![CDATA[<p>索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。</p>
-<p>MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：<strong>B+Tree 索引</strong>和<strong>Hash索引</strong>。我们详细介绍一下这两种索引及其优化的方法。<span id="more"></span></p>
-<h2 id="1-B-Tree-索引"><a href="#1-B-Tree-索引" class="headerlink" title="1. B+Tree 索引"></a>1. B+Tree 索引</h2><p>B+ Tree索引是大多数 MySQL 存储引擎的默认索引类型。它将对数据的无序IO操作变成了顺序IO操作。</p>
-<p>因为不再需要进行全表扫描，只需要对树进行搜索即可，所以查找速度快很多。</p>
-<p>因为 B+ Tree 的有序性，所以除了用于查找，还可以用于排序和分组。</p>
-<p>可以指定多个列作为索引列，多个索引列共同组成键。</p>
-<p><strong>适用于全键值、键值范围和键前缀查找，其中键前缀查找只适用于最左前缀查找。如果不是按照索引列的顺序进行查找，则无法使用索引。</strong></p>
-<h2 id="2-Hash-索引"><a href="#2-Hash-索引" class="headerlink" title="2. Hash 索引"></a>2. Hash 索引</h2><p>哈希索引能以 O(1) 时间进行查找，但是失去了有序性：</p>
-<ul>
-<li>无法用于排序与分组；</li>
-<li>只支持精确查找，无法用于部分查找和范围查找。</li>
-</ul>
-<p>InnoDB 存储引擎有一个特殊的功能叫“自适应哈希索引”，当某个索引值被使用的非常频繁时，会在 B+Tree 索引之上再创建一个哈希索引，这样就让 B+Tree 索引具有哈希索引的一些优点，比如快速的哈希查找。</p>
-<h3 id="3-总结两种类型的索引"><a href="#3-总结两种类型的索引" class="headerlink" title="3. 总结两种类型的索引"></a>3. 总结两种类型的索引</h3><ul>
-<li>B+Tree-INDEX: 每一个叶子节点都包含指向下一个叶子节点的指针，从而方便叶子节点的范围遍历。B-Tree通常意味着所有的值都是按顺序存储的，并且每一个叶子页到根的距离相同，<strong>很适合查找范围数据</strong>。所以可以对诸如时间类型的字段加B+Tree索引。</li>
-<li>Hash-INDEX: 哈希索引基于哈希表实现，<strong>只有精确索引所有列的查询才有效</strong>。对于每一行数据，存储引擎都会对所有的索引列计算一个哈希码。哈希索引将所有的哈希码存储在索引中，同时在哈希表中保存指向每个数据的指针。</li>
-</ul>
-<h2 id="4-索引优化"><a href="#4-索引优化" class="headerlink" title="4. 索引优化"></a>4. 索引优化</h2><ul>
-<li><p>索引列的顺序：让选择性最强的索引列放在前面。比如一个表的主键就是选择性最强的。</p>
-</li>
-<li><p>对于 BLOB、TEXT 和 VARCHAR 类型的列，必须使用前缀索引，只索引开始的部分字符。必须遵循最左匹配原则。</p>
-</li>
-<li><p>独立的列，不参与表达式：</p>
-<p>在进行查询时，索引列不能是表达式的一部分，也不能是函数的参数，否则无法使用索引。</p>
-<p>例如下面的查询不能使用 actor_id 列的索引：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT actor_id FROM sakila.actor WHERE actor_id + 1 &#x3D; 5;</span><br></pre></td></tr></table></figure></li>
-<li><p>在需要使用多个列作为条件进行查询时，使用多列索引比使用多个单列索引性能更好。</p>
-<p>例如下面的语句中，最好把 actor_id 和 film_id 设置为多列索引：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT film_id, actor_ id FROM sakila.film_actor</span><br><span class="line">WHERE actor_id &#x3D; 1 AND film_id &#x3D; 1;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<p>以上就是我对索引优化的简单总结，后面我会介绍一些其他的优化方式，比如主从复制，读写分离，SQL优化等等。</p>
-]]></content>
-      <categories>
-        <category>MySQL</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-        <tag>SQL优化</tag>
-        <tag>MySQL索引</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>细说SpringBoot的自动装配原理(下)</title>
     <url>/SpringBoot/springboot-autoconf2/</url>
     <content><![CDATA[<p>上一篇说到@SpringBootApplication注解的作用，这一篇文章我们就从启动类来说明。一般的我们写启动类大体都如下：</p>
@@ -98,6 +54,49 @@
       </categories>
       <tags>
         <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MySQL索引及其优化</title>
+    <url>/MySQL/mysql-index/</url>
+    <content><![CDATA[<p>索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。</p>
+<p>MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：<strong>B+Tree 索引</strong>和<strong>Hash索引</strong>。我们详细介绍一下这两种索引及其优化的方法。<span id="more"></span></p>
+<h2 id="1-B-Tree-索引"><a href="#1-B-Tree-索引" class="headerlink" title="1. B+Tree 索引"></a>1. B+Tree 索引</h2><p>B+ Tree索引是大多数 MySQL 存储引擎的默认索引类型。它将对数据的无序IO操作变成了顺序IO操作。</p>
+<p>因为不再需要进行全表扫描，只需要对树进行搜索即可，所以查找速度快很多。</p>
+<p>因为 B+ Tree 的有序性，所以除了用于查找，还可以用于排序和分组。</p>
+<p>可以指定多个列作为索引列，多个索引列共同组成键。</p>
+<p><strong>适用于全键值、键值范围和键前缀查找，其中键前缀查找只适用于最左前缀查找。如果不是按照索引列的顺序进行查找，则无法使用索引。</strong></p>
+<h2 id="2-Hash-索引"><a href="#2-Hash-索引" class="headerlink" title="2. Hash 索引"></a>2. Hash 索引</h2><p>哈希索引能以 O(1) 时间进行查找，但是失去了有序性：</p>
+<ul>
+<li>无法用于排序与分组；</li>
+<li>只支持精确查找，无法用于部分查找和范围查找。</li>
+</ul>
+<p>InnoDB 存储引擎有一个特殊的功能叫“自适应哈希索引”，当某个索引值被使用的非常频繁时，会在 B+Tree 索引之上再创建一个哈希索引，这样就让 B+Tree 索引具有哈希索引的一些优点，比如快速的哈希查找。</p>
+<h3 id="3-总结两种类型的索引"><a href="#3-总结两种类型的索引" class="headerlink" title="3. 总结两种类型的索引"></a>3. 总结两种类型的索引</h3><ul>
+<li>B+Tree-INDEX: 每一个叶子节点都包含指向下一个叶子节点的指针，从而方便叶子节点的范围遍历。B-Tree通常意味着所有的值都是按顺序存储的，并且每一个叶子页到根的距离相同，<strong>很适合查找范围数据</strong>。所以可以对诸如时间类型的字段加B+Tree索引。</li>
+<li>Hash-INDEX: 哈希索引基于哈希表实现，<strong>只有精确索引所有列的查询才有效</strong>。对于每一行数据，存储引擎都会对所有的索引列计算一个哈希码。哈希索引将所有的哈希码存储在索引中，同时在哈希表中保存指向每个数据的指针。</li>
+</ul>
+<h2 id="4-索引优化"><a href="#4-索引优化" class="headerlink" title="4. 索引优化"></a>4. 索引优化</h2><ul>
+<li><p>索引列的顺序：让选择性最强的索引列放在前面。比如一个表的主键就是选择性最强的。</p>
+</li>
+<li><p>对于 BLOB、TEXT 和 VARCHAR 类型的列，必须使用前缀索引，只索引开始的部分字符。必须遵循最左匹配原则。</p>
+</li>
+<li><p>独立的列，不参与表达式：</p>
+<p>在进行查询时，索引列不能是表达式的一部分，也不能是函数的参数，否则无法使用索引。</p>
+<p>例如下面的查询不能使用 actor_id 列的索引：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT actor_id FROM sakila.actor WHERE actor_id + 1 &#x3D; 5;</span><br></pre></td></tr></table></figure></li>
+<li><p>在需要使用多个列作为条件进行查询时，使用多列索引比使用多个单列索引性能更好。</p>
+<p>例如下面的语句中，最好把 actor_id 和 film_id 设置为多列索引：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT film_id, actor_ id FROM sakila.film_actor</span><br><span class="line">WHERE actor_id &#x3D; 1 AND film_id &#x3D; 1;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>以上就是我对索引优化的简单总结，后面我会介绍一些其他的优化方式，比如主从复制，读写分离，SQL优化等等。</p>
+]]></content>
+      <categories>
+        <category>MySQL</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+        <tag>MySQL索引</tag>
       </tags>
   </entry>
   <entry>
