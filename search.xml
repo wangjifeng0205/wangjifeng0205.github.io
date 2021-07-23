@@ -281,7 +281,7 @@
   <entry>
     <title>事务与SQL优化</title>
     <url>/Database/transactional-sql/</url>
-    <content><![CDATA[<h2 id="1-事务-Transactional"><a href="#1-事务-Transactional" class="headerlink" title="1. 事务(Transactional)"></a>1. 事务(Transactional)</h2><p>事务指的是满足 ACID 特性的一组操作，可以通过 Commit 提交一个事务，也可以使用 Rollback 进行回滚。<strong>简单来说就是在一个业务场景中，一组SQL语句执行的最小单位。</strong>这一组SQL语句的执行不可分割，要么全部成功，要么全部失败。</p>
+    <content><![CDATA[<h2 id="1-事务-Transactional"><a href="#1-事务-Transactional" class="headerlink" title="1. 事务(Transactional)"></a>1. 事务(Transactional)</h2><p>事务指的是满足 ACID 特性的一组操作，可以通过 Commit 提交一个事务，也可以使用 Rollback 进行回滚。<strong>简单来说就是在一个业务场景中，一组SQL语句执行的最小单位。</strong>这一组SQL语句的执行不可分割，要么全部成功，要么全部失败。<span id="more"></span></p>
 <h3 id="1-1-事务的四大特征-ACID"><a href="#1-1-事务的四大特征-ACID" class="headerlink" title="1.1 事务的四大特征(ACID)"></a>1.1 事务的四大特征(ACID)</h3><ul>
 <li><p><strong>原子性(Atomicity)</strong></p>
 <p>事务被视为不可分割的最小单元，事务的所有操作要么全部提交成功，要么全部失败回滚。即：一组SQL语句的执行不可分割，要么全部成功，要么全部失败。</p>
