@@ -1,49 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>MySQL索引及其优化</title>
-    <url>/MySQL/mysql-index/</url>
-    <content><![CDATA[<p>索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。</p>
-<p>MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：<strong>B+Tree 索引</strong>和<strong>Hash索引</strong>。我们详细介绍一下这两种索引及其优化的方法。<span id="more"></span></p>
-<h2 id="1-B-Tree-索引"><a href="#1-B-Tree-索引" class="headerlink" title="1. B+Tree 索引"></a>1. B+Tree 索引</h2><p>B+ Tree索引是大多数 MySQL 存储引擎的默认索引类型。它将对数据的无序IO操作变成了顺序IO操作。至于什么是B-Tree树，即平衡树(Balance Tree)，更具体的请自行百度了解。</p>
-<p>因为不再需要进行全表扫描，只需要对树进行搜索即可，所以查找速度快很多。</p>
-<p>因为 B+ Tree 的有序性，所以除了用于查找，还可以用于排序和分组。</p>
-<p>可以指定多个列作为索引列，多个索引列共同组成键。</p>
-<p><strong>适用于全键值、键值范围和键前缀查找，其中键前缀查找只适用于最左前缀查找。如果不是按照索引列的顺序进行查找，则无法使用索引。</strong></p>
-<h2 id="2-Hash-索引"><a href="#2-Hash-索引" class="headerlink" title="2. Hash 索引"></a>2. Hash 索引</h2><p>哈希索引能以 O(1) 时间进行查找，但是失去了有序性：</p>
-<ul>
-<li>无法用于排序与分组；</li>
-<li>只支持精确查找，无法用于部分查找和范围查找。</li>
-</ul>
-<p>InnoDB 存储引擎有一个特殊的功能叫“自适应哈希索引”，当某个索引值被使用的非常频繁时，会在 B+Tree 索引之上再创建一个哈希索引，这样就让 B+Tree 索引具有哈希索引的一些优点，比如快速的哈希查找。</p>
-<h3 id="3-总结两种类型的索引"><a href="#3-总结两种类型的索引" class="headerlink" title="3. 总结两种类型的索引"></a>3. 总结两种类型的索引</h3><ul>
-<li>B+Tree-INDEX: 每一个叶子节点都包含指向下一个叶子节点的指针，从而方便叶子节点的范围遍历。B-Tree通常意味着所有的值都是按顺序存储的，并且每一个叶子页到根的距离相同，<strong>很适合查找范围数据</strong>。所以可以对诸如时间类型的字段加B+Tree索引。</li>
-<li>Hash-INDEX: 哈希索引基于哈希表实现，<strong>只有精确索引所有列的查询才有效</strong>。对于每一行数据，存储引擎都会对所有的索引列计算一个哈希码。哈希索引将所有的哈希码存储在索引中，同时在哈希表中保存指向每个数据的指针。</li>
-</ul>
-<h2 id="4-索引优化"><a href="#4-索引优化" class="headerlink" title="4. 索引优化"></a>4. 索引优化</h2><ul>
-<li><p>索引列的顺序：让选择性最强的索引列放在前面。比如一个表的主键就是选择性最强的。</p>
-</li>
-<li><p>对于 BLOB、TEXT 和 VARCHAR 类型的列，必须使用前缀索引，只索引开始的部分字符。必须遵循最左匹配原则。</p>
-</li>
-<li><p>独立的列，不参与表达式：</p>
-<p>在进行查询时，索引列不能是表达式的一部分，也不能是函数的参数，否则无法使用索引。</p>
-<p>例如下面的查询不能使用 actor_id 列的索引：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT actor_id FROM sakila.actor WHERE actor_id + 1 &#x3D; 5;</span><br></pre></td></tr></table></figure></li>
-<li><p>在需要使用多个列作为条件进行查询时，使用多列索引比使用多个单列索引性能更好。</p>
-<p>例如下面的语句中，最好把 actor_id 和 film_id 设置为多列索引：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT film_id, actor_ id FROM sakila.film_actor</span><br><span class="line">WHERE actor_id &#x3D; 1 AND film_id &#x3D; 1;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<p>以上就是我对索引优化的简单总结，后面我会介绍一些其他的优化方式，比如主从复制，读写分离，SQL优化等等。</p>
-]]></content>
-      <categories>
-        <category>MySQL</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-        <tag>MySQL索引</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>细说SpringBoot的自动装配原理(下)</title>
     <url>/SpringBoot/springboot-autoconf2/</url>
     <content><![CDATA[<p>上一篇说到@SpringBootApplication注解的作用，这一篇文章我们就从启动类来说明。一般的我们写启动类大体都如下：</p>
@@ -97,6 +54,50 @@
       </categories>
       <tags>
         <tag>SpringBoot</tag>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MySQL索引及其优化</title>
+    <url>/Database/mysql-index/</url>
+    <content><![CDATA[<p>索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。</p>
+<p>MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：<strong>B+Tree 索引</strong>和<strong>Hash索引</strong>。我们详细介绍一下这两种索引及其优化的方法。<span id="more"></span></p>
+<h2 id="1-B-Tree-索引"><a href="#1-B-Tree-索引" class="headerlink" title="1. B+Tree 索引"></a>1. B+Tree 索引</h2><p>B+ Tree索引是大多数 MySQL 存储引擎的默认索引类型。它将对数据的无序IO操作变成了顺序IO操作。至于什么是B-Tree树，即平衡树(Balance Tree)，更具体的请自行百度了解。</p>
+<p>因为不再需要进行全表扫描，只需要对树进行搜索即可，所以查找速度快很多。</p>
+<p>因为 B+ Tree 的有序性，所以除了用于查找，还可以用于排序和分组。</p>
+<p>可以指定多个列作为索引列，多个索引列共同组成键。</p>
+<p><strong>适用于全键值、键值范围和键前缀查找，其中键前缀查找只适用于最左前缀查找。如果不是按照索引列的顺序进行查找，则无法使用索引。</strong></p>
+<h2 id="2-Hash-索引"><a href="#2-Hash-索引" class="headerlink" title="2. Hash 索引"></a>2. Hash 索引</h2><p>哈希索引能以 O(1) 时间进行查找，但是失去了有序性：</p>
+<ul>
+<li>无法用于排序与分组；</li>
+<li>只支持精确查找，无法用于部分查找和范围查找。</li>
+</ul>
+<p>InnoDB 存储引擎有一个特殊的功能叫“自适应哈希索引”，当某个索引值被使用的非常频繁时，会在 B+Tree 索引之上再创建一个哈希索引，这样就让 B+Tree 索引具有哈希索引的一些优点，比如快速的哈希查找。</p>
+<h3 id="3-总结两种类型的索引"><a href="#3-总结两种类型的索引" class="headerlink" title="3. 总结两种类型的索引"></a>3. 总结两种类型的索引</h3><ul>
+<li>B+Tree-INDEX: 每一个叶子节点都包含指向下一个叶子节点的指针，从而方便叶子节点的范围遍历。B-Tree通常意味着所有的值都是按顺序存储的，并且每一个叶子页到根的距离相同，<strong>很适合查找范围数据</strong>。所以可以对诸如时间类型的字段加B+Tree索引。</li>
+<li>Hash-INDEX: 哈希索引基于哈希表实现，<strong>只有精确索引所有列的查询才有效</strong>。对于每一行数据，存储引擎都会对所有的索引列计算一个哈希码。哈希索引将所有的哈希码存储在索引中，同时在哈希表中保存指向每个数据的指针。</li>
+</ul>
+<h2 id="4-索引优化"><a href="#4-索引优化" class="headerlink" title="4. 索引优化"></a>4. 索引优化</h2><ul>
+<li><p>索引列的顺序：让选择性最强的索引列放在前面。比如一个表的主键就是选择性最强的。</p>
+</li>
+<li><p>对于 BLOB、TEXT 和 VARCHAR 类型的列，必须使用前缀索引，只索引开始的部分字符。必须遵循最左匹配原则。</p>
+</li>
+<li><p>独立的列，不参与表达式：</p>
+<p>在进行查询时，索引列不能是表达式的一部分，也不能是函数的参数，否则无法使用索引。</p>
+<p>例如下面的查询不能使用 actor_id 列的索引：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT actor_id FROM sakila.actor WHERE actor_id + 1 &#x3D; 5;</span><br></pre></td></tr></table></figure></li>
+<li><p>在需要使用多个列作为条件进行查询时，使用多列索引比使用多个单列索引性能更好。</p>
+<p>例如下面的语句中，最好把 actor_id 和 film_id 设置为多列索引：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT film_id, actor_ id FROM sakila.film_actor</span><br><span class="line">WHERE actor_id &#x3D; 1 AND film_id &#x3D; 1;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>以上就是我对索引优化的简单总结，后面我会介绍一些其他的优化方式，比如主从复制，读写分离，SQL优化等等。</p>
+]]></content>
+      <categories>
+        <category>Database</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+        <tag>MySQL索引</tag>
       </tags>
   </entry>
   <entry>
@@ -274,6 +275,308 @@
       </categories>
       <tags>
         <tag>SpringBoot</tag>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>事务与SQL优化</title>
+    <url>/Database/transactional-sql/</url>
+    <content><![CDATA[<h2 id="1-事务-Transactional"><a href="#1-事务-Transactional" class="headerlink" title="1. 事务(Transactional)"></a>1. 事务(Transactional)</h2><p>事务指的是满足 ACID 特性的一组操作，可以通过 Commit 提交一个事务，也可以使用 Rollback 进行回滚。<strong>简单来说就是在一个业务场景中，一组SQL语句执行的最小单位。</strong>这一组SQL语句的执行不可分割，要么全部成功，要么全部失败。</p>
+<h3 id="1-1-事务的四大特征-ACID"><a href="#1-1-事务的四大特征-ACID" class="headerlink" title="1.1 事务的四大特征(ACID)"></a>1.1 事务的四大特征(ACID)</h3><ul>
+<li><p><strong>原子性(Atomicity)</strong></p>
+<p>事务被视为不可分割的最小单元，事务的所有操作要么全部提交成功，要么全部失败回滚。即：一组SQL语句的执行不可分割，要么全部成功，要么全部失败。</p>
+<p>回滚可以用回滚日志（Undo Log）来实现，回滚日志记录着事务所执行的修改操作，在回滚时反向执行这些修改操作即可。</p>
+</li>
+<li><p><strong>一致性(Consistency)</strong></p>
+<p>数据库在事务执行前后都保持一致性状态。在一致性状态下，所有事务对同一个数据的读取结果都是相同的。</p>
+</li>
+<li><p><strong>隔离性(Isolation)</strong></p>
+<p>一个事务所做的修改在最终提交以前，对其它事务是不可见的。隔离性有四个隔离级别，分别是:</p>
+<ul>
+<li><p>读未提交（READ UNCOMMITTED）</p>
+</li>
+<li><p>读已提交（READ COMMITTED）</p>
+</li>
+<li><p>可重复读（REPEATABLE READ）</p>
+</li>
+<li><p>串行化（SERIALIZABLE）</p>
+<p>后面再对这四种隔离级别进行详细解释。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>持久性(Durability)</strong></p>
+<p>一旦事务提交，则其所做的修改将会永远保存到数据库中。即使系统发生崩溃，事务执行的结果也不能丢失。</p>
+<p>系统发生崩溃可以用重做日志（Redo Log）进行恢复，从而实现持久性。与回滚日志记录数据的逻辑修改不同，重做日志记录的是数据页的物理修改。</p>
+</li>
+</ul>
+<p>事务的 ACID 特性概念简单，但不是很好理解，主要是因为这几个特性不是一种平级关系：</p>
+<ul>
+<li>只有满足一致性，事务的执行结果才是正确的。</li>
+<li>在无并发的情况下，事务串行执行，隔离性一定能够满足。此时只要能满足原子性，就一定能满足一致性。</li>
+<li>在并发的情况下，多个事务并行执行，事务不仅要满足原子性，还需要满足隔离性，才能满足一致性。</li>
+<li>事务满足持久化是为了能应对系统崩溃的情况。</li>
+</ul>
+<h3 id="1-2-并发下的问题"><a href="#1-2-并发下的问题" class="headerlink" title="1.2 并发下的问题"></a>1.2 并发下的问题</h3><p>在非并发的情况下，并不会产生什么问题，但是在并发的情况下，事务的隔离性很难保证，即一个事务没有提交之前对其他事务不可见这个特性很难保证不出问题，进而很难保证数据的一致性，即事务的一致性很难保证。并发下会出现哪些问题呢？</p>
+<ul>
+<li><p><strong>修改丢失</strong></p>
+<p>修改丢失：丢失修改指一个事务的更新操作被另外一个事务的更新操作替换。</p>
+<p>例如：T1 和 T2 两个事务都对一个数据进行修改，T1 先修改并提交生效，T2 随后修改，T2 的修改覆盖了 T1 的修改。</p>
+<p>按理来说，在T2修改操作正在进行但未完成的同时如果有查询操作，读取到的数据应该是T1刚刚修改的数据。但是实际上不是，读取到的数据要么是T1修改之前的数据，要么是T2修改之后的数据。这就违背了事务的隔离性和一致性。</p>
+</li>
+<li><p><strong>脏读</strong></p>
+<p>脏读：一个事务读到另一个事务未提交的数据。</p>
+<p>例如：数据库存的数据是10，事务T1开启事务，对这个数据进行了修改，将10修改为20，此时事务T1没有提交事务，另一个事务T2读取到这个数据为20。</p>
+<p>正常来说T2这个事务读取到的数据应该还是10，因为T1这个事务还没有提交，这就违背了事务的隔离性和一致性。</p>
+</li>
+<li><p><strong>不可重复读</strong></p>
+<p>不可重复读：指在同一个事务中，多次读取同一份数据，读取的结果不一样。</p>
+<p>例如：数据库存的数据是10，事务T1开启事务，对这个数据进行读取，读到的数据为10，此时事务T1并未提交事务，另一个事务T2开启事务并对这个数据进行了修改，修改为20，T2提交事务，此时事务T1对这个数据再读一次，读到的结果为20。</p>
+<p>正常来说，T1两次读取到的数据都应该是10，T2的修改操作应该阻塞，因为T1这个事务还没有提交，这就违背了事务的隔离性和一致性。</p>
+</li>
+<li><p><strong>幻读</strong></p>
+<p>幻读：幻读本质上也属于不可重复读的情况，T1 读取某个范围的数据，T2 在这个范围内插入新的数据，T1 再次读取这个范围的数据，此时读取的结果和和第一次读取的结果不同。感觉上和不可重复读很像，但是其实他们是有差别的，一个是具体到某些记录数，一个是符合某个范围的记录数，但是具体有多少记录数不确定。</p>
+<p>例如：事务T1开启事务，事务T1读取某个范围的数据，发现有10条，此时事务T1没有提交事务，事务T2插入了10条符合这个范围条件的数据，T1再次读取这个范围的数据，读取到20条数。</p>
+<p>正常来说，事务T1在事务提交之前，读取到的数据应该一直都是10条，违背了事务的隔离性和一致性。</p>
+</li>
+</ul>
+<h3 id="1-3-数据库的锁"><a href="#1-3-数据库的锁" class="headerlink" title="1.3 数据库的锁"></a>1.3 数据库的锁</h3><p>为了解决上述的四个事务隔离性问题，数据库开发商在设计数据库系统的时候，规范了事务的隔离性，创建了四个隔离级别，分别来解决这四个问题，但是在了解这四个隔离级别是如何解决问题之前，我们必须先知道数据库中内置了哪些锁，因为在数据库隔离级别中就用到了这些锁。</p>
+<p>数据库一般有两种粒度的锁：表级锁和行级锁。</p>
+<p>顾名思义，表级锁就是事务在进行数据库操作的时候会锁住整个表，其他事务不能对表进行数据库操作。行级锁就是事务对某一行或某几行数据记录进行数据库操作时，其他事务不能对这些记录进行数据库更新操作，但是可以对其他的数据记录进行任何数据库操作。</p>
+<p>数据库的锁一般有两种类型：共享锁(读锁)和排它锁(写锁)。</p>
+<p>对于锁的类型，一般有以下两个规定：</p>
+<ul>
+<li>一个事务对数据对象 A 加了写锁，就可以对 A 进行读取和更新。加锁期间其它事务不能对 A 加任何锁。</li>
+<li>一个事务对数据对象 A 加了读锁，可以对 A 进行读取操作，但是不能进行更新操作。加锁期间其它事务能对 A 加读锁，但是不能加写锁。</li>
+</ul>
+<p>数据库锁的使用一般要遵循以下规定：</p>
+<ul>
+<li><p><strong>一级锁规定</strong>：事务 T 要修改数据 A 时必须加写锁，直到 T 结束才释放锁。</p>
+<p>可以解决丢失修改问题，因为不能同时有两个事务对同一个数据进行修改，那么事务的修改就不会被覆盖。</p>
+</li>
+<li><p><strong>二级锁规定</strong>：在一级锁规定的基础上，要求读取数据 A 时必须加读锁，读取完马上释放读锁。</p>
+<p>可以解决读脏数据问题，因为如果一个事务在对数据 A 进行修改，根据一级锁规定，会加写锁，那么就不能再加读锁了，也就是不会读取数据。</p>
+</li>
+<li><p><strong>三级锁规定</strong>：在二级锁规定的基础上，要求读取数据 A 时必须加读锁，直到事务结束了才能释放读锁。</p>
+<p>可以解决不可重复读的问题，因为读 A 时，其它事务不能对 A 加写锁，从而避免了在读的期间数据发生改变。</p>
+</li>
+</ul>
+<p>由以上介绍，可以得出：</p>
+<ul>
+<li><strong>行级读锁和行级读锁是可以共存的。</strong></li>
+<li><strong>行级写锁不和任何锁共存。</strong></li>
+<li><strong>表级写锁不和任何锁共存。</strong></li>
+<li><strong>表级读锁和行级读锁可以共存。</strong></li>
+</ul>
+<p>所以接下来我们来看四种隔离级别是如何解锁上述的四种问题的。</p>
+<h3 id="1-4-事务的四种隔离级别"><a href="#1-4-事务的四种隔离级别" class="headerlink" title="1.4 事务的四种隔离级别"></a>1.4 事务的四种隔离级别</h3><ul>
+<li><p><strong>读未提交（READ UNCOMMITTED）</strong></p>
+<p><strong>定义</strong>：事务中的修改，即使没有提交，对其它事务也是可见的。</p>
+<p><strong>实现原理</strong>：事务在读数据的时候并未对数据加锁。事务在修改数据的时候只对数据增加了行级共享锁。</p>
+<p><strong>解析</strong>：在读取数据的时候没有加锁，所以其他事务可以在当前事务读取数据的时候对数据进行修改，所以会出现脏读问题。</p>
+<p>当前事务在进行修改数据的时候，会加行级共享锁，所以允许其他事务和当前事务一起读取数据，但是如果其他事务想修改数据，需要加行级排它锁，但是行级排它锁不和任何锁共存，所以其他事务修改数据的操作会阻塞，就不会淹没当前事务的修改操作，解决了修改丢失问题。</p>
+</li>
+<li><p><strong>读已提交（READ COMMITTED）</strong></p>
+<p><strong>定义</strong>：一个事务只能读取已经提交的事务所做的修改。换句话说，一个事务所做的修改在提交之前对其它事务是不可见的。</p>
+<p><strong>实现原理</strong>：事务对当前被读取的数据加<strong>行级共享锁（当读到时才加锁）</strong>，<strong>一旦读完该行，立即释放该行级共享锁；</strong>事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加<strong>行级排他锁</strong>，直到<strong>事务结束才释放</strong>。</p>
+<p><strong>解析</strong>：当前事务对数据行加行级共享锁，其他事务可以和当前事务一起读数据，但是其他事务如果对数据行进行修改操作，则会阻塞，但是当前事务读取数据完毕之后，立马就释放了行级共享锁，并不是事务结束之后在释放锁；在当前事务进行修改操作的时候，加了行级排它锁，其他事务无法修改此数据行，也无法读取此数据行，当前事务结束自己的事务之后才释放行级排它锁，解决了修改丢失，脏读问题。因为当前事务在读取数据之后就立马释放了行级共享锁，并不是事务结束之后再释放锁，所以在当前事务为结束事务之前，其他事务时可以对数据进行修改操作的，就会产生不可重复读问题。</p>
+</li>
+<li><p><strong>可重复读（REPEATABLE READ）</strong></p>
+<p><strong>定义</strong>：保证在同一个事务中多次读取同一数据的结果是一样的。</p>
+<p><strong>实现原理</strong>：事务在读取某数据的瞬间（就是开始读取的瞬间），必须先对其加<strong>行级共享锁</strong>，直到<strong>事务结束才释放；</strong>事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加<strong>行级排他锁</strong>，直到<strong>事务结束才释放。</strong></p>
+<p><strong>解析</strong>：当前事务在读取数据时，会加行级共享锁，并且是到事务结束时才释放，所以其他事务不能在当前事务未提交之前修改数据，解决了不可重复读问题，但是不能解决幻读问题，请看下面的示例：</p>
+<p>事务T1开启事务并读取某个范围的数据，读取到10条数据，那么会对这10条数据加行级共享锁，此时T1事务没有结束事务，其他事务只能读取这10条数据，不能修改；当另一个事务T2添加了一条符合这个范围的数据，此时新加的这一条数据是不在T1事务的行级共享锁的范围内的，但是此时T1事务再次查询，读到的数据就不是10条数据了，是11条数据，此时就产生了幻读。</p>
+</li>
+<li><p><strong>串行化（SERIALIZABLE）</strong></p>
+<p><strong>定义</strong>：强制事务串行执行，这样多个事务互不干扰，不会出现并发一致性问题。该隔离级别需要加锁实现，因为要使用加锁机制保证同一时间只有一个事务执行，也就是保证事务串行执行。</p>
+<p>可序列化(Serializable)是最高的隔离级别，前面提到的所有的隔离级别都无法解决的幻读，在可序列化的隔离级别中可以解决。产生幻读的原因是事务在进行范围查询的时候没有增加范围锁(range-locks：给SELECT 的查询中使用一个“WHERE”子句描述范围加锁），所以导致幻读。</p>
+<p><strong>实现原理</strong>：事务在读取数据时，必须先对其加<strong>表级共享锁</strong> ，直到<strong>事务结束才释放；</strong>事务在更新数据时，必须先对其加<strong>表级排他锁 <strong>，直到</strong>事务结束才释放</strong>。</p>
+<p><strong>解析</strong>：根据表级锁的解释，读锁之间可以并行；但是读事务和写事务是不能并行的，而且是整个表都无法操作的，也就不存在幻读的问题。但是这样做数据库效率就很低下，并发性就越低。</p>
+<p>虽然可序列化解决了脏读、不可重复读、幻读等读现象。但是序列化事务会产生以下效果：</p>
+<p>1.无法读取其它事务已修改但未提交的记录。</p>
+<p>2.在当前事务完成之前，其它事务不能修改目前事务已读取的记录。</p>
+<p>3.在当前事务完成之前，其它事务所插入的新记录，其索引键值不能在当前事务的任何语句所读取的索引键范围中。</p>
+</li>
+</ul>
+<p><strong>四种事务隔离级别从隔离程度上越来越高，但同时在并发性上也就越来越低。之所以有这么几种隔离级别，就是为了方便开发人员在开发过程中根据业务需要选择最合适的隔离级别。</strong></p>
+<p>MySQL的事务的隔离级别默认是：<strong>可重复读（REPEATABLE READ）</strong>。</p>
+<h2 id="2-SQL优化"><a href="#2-SQL优化" class="headerlink" title="2. SQL优化"></a>2. SQL优化</h2><p>上面讲到了事务，在事务中会涉及到各种锁，在写SQL的时候如果不注意sql的写法和方式，很容易就造成大面的sql执行阻塞。这也就是为什么先说事务在将sql优化的原因。</p>
+<h3 id="2-1-从数据库本身进行优化"><a href="#2-1-从数据库本身进行优化" class="headerlink" title="2.1 从数据库本身进行优化"></a>2.1 从数据库本身进行优化</h3><p>从数据库本身进行优化的意思是数据库本身提供了很多的函数，运算操作符等，有的操作符和函数性能好，有的操作符和函数性能差，下面我们大致的列举一下MySQL中常用的函数优化和操作符优化。注意：<strong>以下举例中的字段是加索引的，违背一下任何一种规则，都会导致该字段的索引失效。</strong></p>
+<ul>
+<li><p><strong>避免全表扫描</strong></p>
+<p>对查询进行优化，应尽量避免全表扫描，首先应考虑在 where 及 order by 涉及的列上建立索引。建立索引之后，查询首先会先通过索引去查找，这样就避免了全表扫描，性能提升会很大。、</p>
+</li>
+<li><p><strong>避免判断 null 值</strong></p>
+<p>应尽量避免在 where 子句中对字段进行 null 值判断，否则将导致引擎放弃使用索引而进行全表扫描。</p>
+<p>比如：</p>
+<p><code>is null</code> ,<code>is not null</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select id from s_table where num is null</span><br></pre></td></tr></table></figure>
+
+<p>这种方式的判断，会导致数据库放弃使用索引，使用全表扫描。</p>
+<p>可以在 num 上设置默认值 0，确保表中 num 列没有 null 值，然后这样查询：<code>select id from t where num=0</code>。此时数据库就会优先使用索引。</p>
+</li>
+<li><p><strong>避免不等值判断</strong></p>
+<p>应尽量避免在 where 子句中使用<code>!=</code>或<code>&lt;&gt;</code>操作符，否则引擎将放弃使用索引而进行全表扫描。</p>
+</li>
+<li><p><strong>避免使用 or 逻辑</strong></p>
+<p>应尽量避免在 where 子句中使用 <code>or</code> 来连接条件，否则将导致引擎放弃使用索引而进行全表扫描。</p>
+<p>比如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select id from s_table where num&#x3D;10 or num&#x3D;20</span><br></pre></td></tr></table></figure>
+
+<p>我们可以改成：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select id from s_table where num&#x3D;10</span><br><span class="line">union all</span><br><span class="line">select id from s_table where num&#x3D;20</span><br></pre></td></tr></table></figure>
+
+<p><code>union all</code>是数据表的纵向连接，跟<code>left join</code>和<code>right join</code>的横向表连接是对着的。并且查询的结果如果有重复行是不会合并的。</p>
+</li>
+<li><p><strong>慎用 in 和 not in 逻辑</strong></p>
+<p><code>in</code> 和 <code>not in</code> 也要慎用，否则会导致全表扫描。</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select id from s_table1 where num in (select id from s_table2 where id &gt; 10)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以改成：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select id from s_table1 as t1 inner join (select id from s_table2 where id &gt; 10) as t2 on t1.id &#x3D; t2.id</span><br></pre></td></tr></table></figure>
+
+<p>内连接查询会将两张表结果的交集展示出来，结果也是一样的。</p>
+</li>
+<li><p><strong>注意模糊查询</strong></p>
+<p>类似<code>like &#39;%abc%&#39;</code>的这样的where条件是不会使用索引的，会导致全表扫描的，如果业务需求允许的话(绝大多数需求是不允许的)，可以改成<code>like &#39;abc%&#39;</code>，因为这样就可以使用索引了，遵循索引的最左匹配原则。但是绝大多数需求是要求左右两边都需要模糊搜索的，我个人建议使用全文检索引擎，比如Elastic Search这种能分词的，ES是基于Lucene构建的，采用的是一种倒排索引的方式，感兴趣的可以自行百度。</p>
+</li>
+<li><p><strong>避免查询条件中字段计算</strong></p>
+<p>应尽量避免在 where 子句中对字段进行表达式操作，这将导致引擎放弃使用索引而进行全表扫描。</p>
+<p>比如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select id from t where num&#x2F;2 &#x3D; 100</span><br></pre></td></tr></table></figure>
+
+<p>可以改成：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select id from t where num &#x3D; 100*2</span><br></pre></td></tr></table></figure></li>
+<li><p><strong>组合索引使用</strong></p>
+<p>在使用索引字段作为条件时，如果该索引是组合索引，那么必须使用到该索引中的第一个字段作为条件时才能保证系统使用该索引，否则该索引将不会被使用，并且应尽可能的让字段顺序与索引顺序相一致。简单来说就是尽量让查询中where子句的条件书写顺序和组合索引的定义顺序一致。遵循最左匹配原则。在创建组合索引的时候，组合索引的字段的值不能有null,否则这个字段对组合索引来说不生效。</p>
+</li>
+<li><p><strong>少用以下关键字和操作符</strong></p>
+<ul>
+<li>少用<code>*</code>，不管是查询多少字段，尽量将字段列举出来，不要使用<code>*</code>。</li>
+<li>少用<code>DISTINCT</code>关键字，可以使用其他方式代替，实际中很多时候可以使用<code>group by</code>的方式解决。</li>
+<li>一些操作字符串的函数会导致查询特别慢，如果可以，尽量在业务代码中处理。<h3 id="2-2-从数据表连接上优化"><a href="#2-2-从数据表连接上优化" class="headerlink" title="2.2 从数据表连接上优化"></a>2.2 从数据表连接上优化</h3></li>
+</ul>
+</li>
+</ul>
+<p>数据表的连接其实也很影响查询的效率，一般遵循以下原则：</p>
+<ul>
+<li><p><strong>外连接优于内连接</strong></p>
+</li>
+<li><p><strong>联表数量不宜超过5个</strong></p>
+<p>联表数量不能太多了，不然联接出来的表会很大，查询就会变慢。而且这个时候，连接的表所查询的行会被共享锁锁住，如果有其他的事务要修改被连接的表就会阻塞。所以，有的时候并不是连接查询快，如果很多表连接查询，其实可以拆开成多个查询，这样速度会快很多，对其他事务的修改操作影响也会小一些。</p>
+</li>
+<li><p><strong>当多表连接时，尽量保证左表和右表的ON子句的条件中，有一个表的条件在表中是唯一的</strong></p>
+<p>比如：</p>
+<p>假设有三张表：</p>
+<p>user(用户表)：</p>
+<table>
+<thead>
+<tr>
+<th align="center">id(主键)</th>
+<th align="center">name(姓名)</th>
+<th align="center">age(年龄)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">wjf</td>
+<td align="center">18</td>
+</tr>
+</tbody></table>
+<p>login_log(登录日志表)：</p>
+<table>
+<thead>
+<tr>
+<th align="center">id(主键)</th>
+<th align="center">user_id(用户id)</th>
+<th align="center">login_time(登录时间)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">2021-07-23 10:30:25</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">1</td>
+<td align="center">2021-07-23 11:30:25</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">1</td>
+<td align="center">2021-07-23 12:30:25</td>
+</tr>
+</tbody></table>
+<p>attendance(考勤表)：</p>
+<table>
+<thead>
+<tr>
+<th align="center">id(主键)</th>
+<th align="center">user_id(用户id)</th>
+<th align="center">attendance_time(考勤时间)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">2021-07-22</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">1</td>
+<td align="center">2021-07-23</td>
+</tr>
+</tbody></table>
+<p><strong>以上三张表，纯粹是演示所使用，不存在具体的业务逻辑</strong>。</p>
+<p>假设我们有如下的一个SQL：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from login_log as t1 left join attendance as t2 on t1.user_id &#x3D; t2.user_id</span><br></pre></td></tr></table></figure>
+
+<p>这个sql语句就不符合<strong>当多表连接时，尽量保证左表和右表的ON子句的条件中，有一个表的条件在表中是唯一的</strong>这个条件，因为这两张表的on子句的条件是<code>t1.user_id = t2.user_id</code>，user_id在这两张表中都不是唯一的，在两张表中都出现了很多次，这样查询的结果就会产生笛卡尔积，当两张表的数据量很大时，查询绝对直接爆炸。</p>
+<p>假设我们还有如下的SQL：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">select * from login_log as t1 left join user as t2 on t1.user_id &#x3D; t2.id</span><br></pre></td></tr></table></figure>
+
+<p>这样就是符合<strong>当多表连接时，尽量保证左表和右表的ON子句的条件中，有一个表的条件在表中是唯一的</strong>这个条件的。</p>
+</li>
+<li><p><strong>多表联查时，在遵循业务逻辑的前提下，小表在前，大表在后</strong></p>
+<p>当有多个表连接查询的时候，在不改变查询结果和遵循业务逻辑的前提下，数据量小的表在连接的时候优先级比数据量大的表的优先级高。因为小表在前，连接产生的虚拟中间表就更小，如果先连接大表，虚拟中间表会特别大，耗时也会很长，也会阻塞其他事务的一些操作。有的时候连接的顺序不一样，查询速度简直一个天上一个地下。</p>
+</li>
+</ul>
+<h3 id="2-3-从数据库架构上优化"><a href="#2-3-从数据库架构上优化" class="headerlink" title="2.3 从数据库架构上优化"></a>2.3 从数据库架构上优化</h3><ul>
+<li><p><strong>主从复制</strong></p>
+<p>主要涉及三个线程：binlog 线程、I/O 线程和 SQL 线程。</p>
+<ul>
+<li><strong>binlog 线程</strong> ：负责将主服务器上的数据更改写入二进制日志（Binary log）中。</li>
+<li><strong>I/O 线程</strong> ：负责从主服务器上读取二进制日志，并写入从服务器的中继日志（Relay log）。</li>
+<li><strong>SQL 线程</strong> ：负责读取中继日志，解析出主服务器已经执行的数据更改并在从服务器中重放（Replay）。</li>
+</ul>
+<img src="/images/markdown_images/master-slave.png" alt="master-slave"  />
+
+<p>俗话说的好，人多力量大，多几台数据库服务器，数据访问压力肯定就更小了。</p>
+</li>
+<li><p><strong>读写分离</strong></p>
+<p>主服务器处理写操作以及实时性要求比较高的读操作，而从服务器处理读操作。</p>
+<p>读写分离能提高性能的原因在于：</p>
+<ul>
+<li>主从服务器负责各自的读和写，极大程度缓解了锁的争用；</li>
+<li>从服务器可以使用 MyISAM，提升查询性能以及节约系统开销；</li>
+<li>增加冗余，提高可用性。</li>
+</ul>
+<p>读写分离常用代理方式来实现，代理服务器接收应用层传来的读写请求，然后决定转发到哪个服务器。</p>
+<img src="/images/markdown_images/master-slave-proxy.png" alt="master-slave-proxy"  />
+
+<p>以上就是我的简单总结，限于本人知识有限，如有错误请给我发邮件指出，欢迎交流，共同学习。</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Database</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+        <tag>MySQL索引</tag>
+        <tag>事务</tag>
+        <tag>SQL优化</tag>
       </tags>
   </entry>
 </search>
