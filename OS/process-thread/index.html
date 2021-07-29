@@ -21,25 +21,29 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
 
 <script class="next-config" data-name="main" type="application/json">{&quot;hostname&quot;:&quot;wangjifeng.net&quot;,&quot;root&quot;:&quot;&#x2F;&quot;,&quot;images&quot;:&quot;&#x2F;images&quot;,&quot;scheme&quot;:&quot;Gemini&quot;,&quot;version&quot;:&quot;8.4.0&quot;,&quot;exturl&quot;:false,&quot;sidebar&quot;:{&quot;position&quot;:&quot;left&quot;,&quot;display&quot;:&quot;post&quot;,&quot;padding&quot;:18,&quot;offset&quot;:12},&quot;copycode&quot;:true,&quot;bookmark&quot;:{&quot;enable&quot;:false,&quot;color&quot;:&quot;#222&quot;,&quot;save&quot;:&quot;auto&quot;},&quot;fancybox&quot;:false,&quot;mediumzoom&quot;:false,&quot;lazyload&quot;:false,&quot;pangu&quot;:false,&quot;comments&quot;:{&quot;style&quot;:&quot;tabs&quot;,&quot;active&quot;:null,&quot;storage&quot;:true,&quot;lazyload&quot;:false,&quot;nav&quot;:null},&quot;motion&quot;:{&quot;enable&quot;:true,&quot;async&quot;:false,&quot;transition&quot;:{&quot;post_block&quot;:&quot;fadeIn&quot;,&quot;post_header&quot;:&quot;fadeInDown&quot;,&quot;post_body&quot;:&quot;fadeInDown&quot;,&quot;coll_header&quot;:&quot;fadeInLeft&quot;,&quot;sidebar&quot;:&quot;fadeInUp&quot;}},&quot;prism&quot;:false,&quot;i18n&quot;:{&quot;placeholder&quot;:&quot;搜索...&quot;,&quot;empty&quot;:&quot;没有找到任何搜索结果：${query}&quot;,&quot;hits_time&quot;:&quot;找到 ${hits} 个搜索结果（用时 ${time} 毫秒）&quot;,&quot;hits&quot;:&quot;找到 ${hits} 个搜索结果&quot;},&quot;path&quot;:&quot;&#x2F;search.xml&quot;,&quot;localsearch&quot;:{&quot;enable&quot;:true,&quot;trigger&quot;:&quot;auto&quot;,&quot;top_n_per_article&quot;:1,&quot;unescape&quot;:false,&quot;preload&quot;:false}}</script>
-<meta name="description" content="Bug制造者">
-<meta property="og:type" content="website">
-<meta property="og:title" content="wjf的个人博客">
-<meta property="og:url" content="https://wangjifeng.net/index.html">
+<meta name="description" content="现代的CPU大多都是采用时间片轮转的方式去执行程序的。进程作为操作系统进行资源分配的基本单位，是如何进行进程的并发的？线程作为操作系统进行调度的基本单位，线程是如何进行并发的呢？ 1. 进程进程就是应用程序在内存中分配的空间，也就是正在运行的程序，各个进程之间互不干扰。同时进程保存着程序每一个时刻运行的状态。 CPU是采用时间片轮转的方式进行进程间的上下文切换的。即： CPU为每个进程分配一个时间">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程和线程">
+<meta property="og:url" content="https://wangjifeng.net/OS/process-thread/index.html">
 <meta property="og:site_name" content="wjf的个人博客">
-<meta property="og:description" content="Bug制造者">
+<meta property="og:description" content="现代的CPU大多都是采用时间片轮转的方式去执行程序的。进程作为操作系统进行资源分配的基本单位，是如何进行进程的并发的？线程作为操作系统进行调度的基本单位，线程是如何进行并发的呢？ 1. 进程进程就是应用程序在内存中分配的空间，也就是正在运行的程序，各个进程之间互不干扰。同时进程保存着程序每一个时刻运行的状态。 CPU是采用时间片轮转的方式进行进程间的上下文切换的。即： CPU为每个进程分配一个时间">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-07-29T02:31:44.492Z">
+<meta property="article:modified_time" content="2021-07-29T02:33:05.021Z">
 <meta property="article:author" content="wjf">
+<meta property="article:tag" content="进程和线程">
+<meta property="article:tag" content="OS">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://wangjifeng.net/">
+<link rel="canonical" href="https://wangjifeng.net/OS/process-thread/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{&quot;sidebar&quot;:&quot;&quot;,&quot;isHome&quot;:true,&quot;isPost&quot;:false,&quot;lang&quot;:&quot;zh-CN&quot;,&quot;comments&quot;:&quot;&quot;,&quot;permalink&quot;:&quot;&quot;,&quot;path&quot;:&quot;index.html&quot;,&quot;title&quot;:&quot;&quot;}</script>
+<script class="next-config" data-name="page" type="application/json">{&quot;sidebar&quot;:&quot;&quot;,&quot;isHome&quot;:false,&quot;isPost&quot;:true,&quot;lang&quot;:&quot;zh-CN&quot;,&quot;comments&quot;:true,&quot;permalink&quot;:&quot;https:&#x2F;&#x2F;wangjifeng.net&#x2F;OS&#x2F;process-thread&#x2F;&quot;,&quot;path&quot;:&quot;OS&#x2F;process-thread&#x2F;&quot;,&quot;title&quot;:&quot;进程和线程&quot;}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">&quot;&quot;</script>
-<title>wjf的个人博客</title><script src="/js/config.js"></script>
+<title>进程和线程 | wjf的个人博客</title><script src="/js/config.js"></script>
   
 
 
@@ -133,7 +137,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -146,6 +150,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%BF%9B%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">1. 进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">2. 线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">3. 进程和线程的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2"><span class="nav-number">4.</span> <span class="nav-text">4. 上下文切换</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -223,16 +228,17 @@
 </noscript>
 
 
-    <div class="main-inner index posts-expand">
+    <div class="main-inner post posts-expand">
 
-    
+
+  
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://wangjifeng.net/OS/process-thread/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -245,9 +251,9 @@
       <meta itemprop="name" content="wjf的个人博客">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/OS/process-thread/" class="post-title-link" itemprop="url">进程和线程</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          进程和线程
+        </h1>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -296,7 +302,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>现代的CPU大多都是采用时间片轮转的方式去执行程序的。进程作为操作系统进行资源分配的基本单位，是如何进行进程的并发的？线程作为操作系统进行调度的基本单位，线程是如何进行并发的呢？</p>
+        <p>现代的CPU大多都是采用时间片轮转的方式去执行程序的。进程作为操作系统进行资源分配的基本单位，是如何进行进程的并发的？线程作为操作系统进行调度的基本单位，线程是如何进行并发的呢？</p>
 <h2 id="1-进程"><a href="#1-进程" class="headerlink" title="1. 进程"></a>1. 进程</h2><p>进程就是<strong>应用程序在内存中分配的空间，也就是正在运行的程序，各个进程之间互不干扰。</strong>同时进程保存着程序每一个时刻运行的状态。</p>
 <p>CPU是采用时间片轮转的方式进行进程间的上下文切换的。即：</p>
 <p>CPU为每个进程分配一个时间段，称作它的时间片。如果在时间片结束时进程还在运行，则暂停这个进程的运行，并且CPU分配给另一个进程（这个过程叫做上下文切换，具体如何进行切换的，请看到最后）。如果进程在时间片结束前阻塞或结束，则CPU立即进行切换，不用等待时间片用完。</p>
@@ -332,7 +338,6 @@
 <p>但是，在切换前会保存上一个任务的状态，以便下次切换回这个任务时，可以再加载这个任务的状态。所以任务从保存到再加载的过程就是一次上下文切换。</p>
 <p>上下文切换通常是计算密集型的，意味着此操作会<strong>消耗大量的 CPU 时间，故线程也不是越多越好</strong>。如何减少系统中上下文切换次数，是提升多线程性能的一个重点课题。</p>
 
-      
     </div>
 
     
@@ -340,425 +345,44 @@
     
 
     <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://wangjifeng.net/Database/transactional-sql/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/logoico.svg">
-      <meta itemprop="name" content="wjf">
-      <meta itemprop="description" content="Bug制造者">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="wjf的个人博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/Database/transactional-sql/" class="post-title-link" itemprop="url">事务与SQL优化</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2021-07-23 10:58:06 / 修改时间：11:10:36" itemprop="dateCreated datePublished" datetime="2021-07-23T10:58:06+08:00">2021-07-23</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
-        </span>
-    </span>
-
-  
+          <div class="reward-container">
+  <div>给我买包辣条</div>
+  <button onclick="document.querySelector('.post-reward').classList.toggle('active');">
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/weixinpay.png" alt="wjf 微信">
+        <span>微信</span>
       </div>
-      <div class="post-meta">
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>7.6k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>7 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="1-事务-Transactional"><a href="#1-事务-Transactional" class="headerlink" title="1. 事务(Transactional)"></a>1. 事务(Transactional)</h2><p>事务指的是满足 ACID 特性的一组操作，可以通过 Commit 提交一个事务，也可以使用 Rollback 进行回滚。<strong>简单来说就是在一个业务场景中，一组SQL语句执行的最小单位。</strong>这一组SQL语句的执行不可分割，要么全部成功，要么全部失败。
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/Database/transactional-sql/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://wangjifeng.net/Database/mysql-index/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/logoico.svg">
-      <meta itemprop="name" content="wjf">
-      <meta itemprop="description" content="Bug制造者">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="wjf的个人博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/Database/mysql-index/" class="post-title-link" itemprop="url">MySQL索引及其优化</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-07-22 13:09:16" itemprop="dateCreated datePublished" datetime="2021-07-22T13:09:16+08:00">2021-07-22</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-07-23 11:08:52" itemprop="dateModified" datetime="2021-07-23T11:08:52+08:00">2021-07-23</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
-        </span>
-    </span>
-
-  
+      <div>
+        <img src="/images/alipay.png" alt="wjf 支付宝">
+        <span>支付宝</span>
       </div>
-      <div class="post-meta">
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>1.2k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
-    </span>
+
+  </div>
 </div>
 
-        </div>
-      </header>
+          <div class="post-tags">
+              <a href="/tags/%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B/" rel="tag"><i class="fa fa-tag"></i> 进程和线程</a>
+              <a href="/tags/OS/" rel="tag"><i class="fa fa-tag"></i> OS</a>
+          </div>
 
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。</p>
-<p>MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：<strong>B+Tree 索引</strong>和<strong>Hash索引</strong>。我们详细介绍一下这两种索引及其优化的方法。
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/Database/mysql-index/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/Database/transactional-sql/" rel="prev" title="事务与SQL优化">
+                  <i class="fa fa-chevron-left"></i> 事务与SQL优化
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
     </footer>
   </article>
 </div>
 
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://wangjifeng.net/SpringBoot/springboot-autoconf2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/logoico.svg">
-      <meta itemprop="name" content="wjf">
-      <meta itemprop="description" content="Bug制造者">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="wjf的个人博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/SpringBoot/springboot-autoconf2/" class="post-title-link" itemprop="url">细说SpringBoot的自动装配原理(下)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-07-17 22:55:09" itemprop="dateCreated datePublished" datetime="2021-07-17T22:55:09+08:00">2021-07-17</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-07-23 11:08:52" itemprop="dateModified" datetime="2021-07-23T11:08:52+08:00">2021-07-23</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/SpringBoot/" itemprop="url" rel="index"><span itemprop="name">SpringBoot</span></a>
-        </span>
-    </span>
-
-  
-      </div>
-      <div class="post-meta">
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>1.6k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>上一篇说到@SpringBootApplication注解的作用，这一篇文章我们就从启动类来说明。一般的我们写启动类大体都如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(TestApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>上述代码大家都很熟悉，就一行代码很重要：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SpringApplication.run(TestApplication.class, args);</span><br></pre></td></tr></table></figure>
-
-<p>接下来我们一起看看这个类。
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/SpringBoot/springboot-autoconf2/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://wangjifeng.net/SpringBoot/springboot-autoconf1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/logoico.svg">
-      <meta itemprop="name" content="wjf">
-      <meta itemprop="description" content="Bug制造者">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="wjf的个人博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/SpringBoot/springboot-autoconf1/" class="post-title-link" itemprop="url">细说SpringBoot的自动装配原理(上)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-05-30 22:19:30" itemprop="dateCreated datePublished" datetime="2021-05-30T22:19:30+08:00">2021-05-30</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-07-23 11:08:52" itemprop="dateModified" datetime="2021-07-23T11:08:52+08:00">2021-07-23</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/SpringBoot/" itemprop="url" rel="index"><span itemprop="name">SpringBoot</span></a>
-        </span>
-    </span>
-
-  
-      </div>
-      <div class="post-meta">
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>6.8k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>6 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="1-什么是SpringBoot"><a href="#1-什么是SpringBoot" class="headerlink" title="1. 什么是SpringBoot?"></a>1. 什么是SpringBoot?</h2><p>对于spring家族的框架来说，我们接触的比较多的可能就是spring，springMVC这两个框架了。<strong>Spring的核心就是IOC和AOP。IOC就是控制反转，即将对象的创建，对象的销毁，对象间的依赖关系等等权力交给Spring，说白了就是让Spring去控制对象的生命周期和对象间的依赖关系。在处理对象间的依赖关系的时候，我们只需要告诉Spring我们需要哪些对象，Spring就会帮助我们配置好，Spring将我们需要的对象配置好的过程就是DI(依赖注入)。AOP就是面向切面编程，面向切面编程是一种思想，Spring框架很优雅的实现了这种思想，它很方便的帮助我们在全局的纵向业务逻辑之上，横向的插入一段逻辑。</strong></p>
-<p>在以前没有SpringBoot的时候，我们需要配置的方式是在XML文件中配置好对象的依赖关系，Spring它会读取这些XML文件，从而进行配置。但是当代码变多的时候，需要的配置会越来越多，大量繁琐的XML文件让我们使用Spring框架很是麻烦(为什么Spring一开始要使用XML文件，其实这和注解出现的版本(Java1.5)有很大的关系)，Spring框架本身是优雅的，轻量级的，但是它的配置却是繁琐的，重量级的。为了减轻这种繁琐的工作，提升工作效率，SpringBoot应运而生，下面欢迎我们的主角SpringBoot。
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/SpringBoot/springboot-autoconf1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
 
 
 

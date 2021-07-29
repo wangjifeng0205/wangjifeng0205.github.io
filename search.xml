@@ -1,6 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>MySQL索引及其优化</title>
+    <url>/Database/mysql-index/</url>
+    <content><![CDATA[<p>索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。</p>
+<p>MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：<strong>B+Tree 索引</strong>和<strong>Hash索引</strong>。我们详细介绍一下这两种索引及其优化的方法。<span id="more"></span></p>
+<h2 id="1-B-Tree-索引"><a href="#1-B-Tree-索引" class="headerlink" title="1. B+Tree 索引"></a>1. B+Tree 索引</h2><p>B+ Tree索引是大多数 MySQL 存储引擎的默认索引类型。它将对数据的无序IO操作变成了顺序IO操作。至于什么是B-Tree树，即平衡树(Balance Tree)，更具体的请自行百度了解。</p>
+<p>因为不再需要进行全表扫描，只需要对树进行搜索即可，所以查找速度快很多。</p>
+<p>因为 B+ Tree 的有序性，所以除了用于查找，还可以用于排序和分组。</p>
+<p>可以指定多个列作为索引列，多个索引列共同组成键。</p>
+<p><strong>适用于全键值、键值范围和键前缀查找，其中键前缀查找只适用于最左前缀查找。如果不是按照索引列的顺序进行查找，则无法使用索引。</strong></p>
+<h2 id="2-Hash-索引"><a href="#2-Hash-索引" class="headerlink" title="2. Hash 索引"></a>2. Hash 索引</h2><p>哈希索引能以 O(1) 时间进行查找，但是失去了有序性：</p>
+<ul>
+<li>无法用于排序与分组；</li>
+<li>只支持精确查找，无法用于部分查找和范围查找。</li>
+</ul>
+<p>InnoDB 存储引擎有一个特殊的功能叫“自适应哈希索引”，当某个索引值被使用的非常频繁时，会在 B+Tree 索引之上再创建一个哈希索引，这样就让 B+Tree 索引具有哈希索引的一些优点，比如快速的哈希查找。</p>
+<h3 id="3-总结两种类型的索引"><a href="#3-总结两种类型的索引" class="headerlink" title="3. 总结两种类型的索引"></a>3. 总结两种类型的索引</h3><ul>
+<li>B+Tree-INDEX: 每一个叶子节点都包含指向下一个叶子节点的指针，从而方便叶子节点的范围遍历。B-Tree通常意味着所有的值都是按顺序存储的，并且每一个叶子页到根的距离相同，<strong>很适合查找范围数据</strong>。所以可以对诸如时间类型的字段加B+Tree索引。</li>
+<li>Hash-INDEX: 哈希索引基于哈希表实现，<strong>只有精确索引所有列的查询才有效</strong>。对于每一行数据，存储引擎都会对所有的索引列计算一个哈希码。哈希索引将所有的哈希码存储在索引中，同时在哈希表中保存指向每个数据的指针。</li>
+</ul>
+<h2 id="4-索引优化"><a href="#4-索引优化" class="headerlink" title="4. 索引优化"></a>4. 索引优化</h2><ul>
+<li><p>索引列的顺序：让选择性最强的索引列放在前面。比如一个表的主键就是选择性最强的。</p>
+</li>
+<li><p>对于 BLOB、TEXT 和 VARCHAR 类型的列，必须使用前缀索引，只索引开始的部分字符。必须遵循最左匹配原则。</p>
+</li>
+<li><p>独立的列，不参与表达式：</p>
+<p>在进行查询时，索引列不能是表达式的一部分，也不能是函数的参数，否则无法使用索引。</p>
+<p>例如下面的查询不能使用 actor_id 列的索引：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT actor_id FROM sakila.actor WHERE actor_id + 1 &#x3D; 5;</span><br></pre></td></tr></table></figure></li>
+<li><p>在需要使用多个列作为条件进行查询时，使用多列索引比使用多个单列索引性能更好。</p>
+<p>例如下面的语句中，最好把 actor_id 和 film_id 设置为多列索引：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT film_id, actor_ id FROM sakila.film_actor</span><br><span class="line">WHERE actor_id &#x3D; 1 AND film_id &#x3D; 1;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>以上就是我对索引优化的简单总结，后面我会介绍一些其他的优化方式，比如主从复制，读写分离，SQL优化等等。</p>
+]]></content>
+      <categories>
+        <category>Database</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+        <tag>MySQL索引</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>进程和线程</title>
+    <url>/OS/process-thread/</url>
+    <content><![CDATA[<p>现代的CPU大多都是采用时间片轮转的方式去执行程序的。进程作为操作系统进行资源分配的基本单位，是如何进行进程的并发的？线程作为操作系统进行调度的基本单位，线程是如何进行并发的呢？</p>
+<h2 id="1-进程"><a href="#1-进程" class="headerlink" title="1. 进程"></a>1. 进程</h2><p>进程就是<strong>应用程序在内存中分配的空间，也就是正在运行的程序，各个进程之间互不干扰。</strong>同时进程保存着程序每一个时刻运行的状态。</p>
+<p>CPU是采用时间片轮转的方式进行进程间的上下文切换的。即：</p>
+<p>CPU为每个进程分配一个时间段，称作它的时间片。如果在时间片结束时进程还在运行，则暂停这个进程的运行，并且CPU分配给另一个进程（这个过程叫做上下文切换，具体如何进行切换的，请看到最后）。如果进程在时间片结束前阻塞或结束，则CPU立即进行切换，不用等待时间片用完。</p>
+<p>对于单核CPU来说，在宏观上看，多个进程是同时执行的；在微观的角度上看，CPU其实在同一时刻，只能为一个进程服务。</p>
+<h2 id="2-线程"><a href="#2-线程" class="headerlink" title="2. 线程"></a>2. 线程</h2><p>虽然进程的出现，使得操作系统的性能大大提升，但是随着时间的推移，人们并不满足一个进程在一段时间只能做一件事情，如果一个进程有多个子任务时，只能逐个得执行这些子任务，很影响效率。</p>
+<p>线程就是<strong>一个比进程粒度更小的执行单位，让一个线程执行一个子任务，这样一个进程就包含了多个线程，每个线程负责一个单独的子任务。</strong></p>
+<p>总之，进程和线程的提出极大的提高了操作提供的性能。<strong>进程让操作系统的并发性成为了可能，而线程让进程的内部并发成为了可能。</strong></p>
+<p><strong>多进程的方式也可以实现并发，为什么我们要使用多线程？</strong></p>
+<p>多进程方式确实可以实现并发，但使用多线程，有以下几个好处：</p>
+<ul>
+<li>进程间的通信比较复杂，而线程间的通信比较简单，通常情况下，我们需要使用共享资源，这些资源在线程间的通信比较容易。</li>
+<li>进程是重量级的，而线程是轻量级的，故多线程方式的系统开销更小。</li>
+</ul>
+<h2 id="3-进程和线程的区别"><a href="#3-进程和线程的区别" class="headerlink" title="3. 进程和线程的区别"></a>3. 进程和线程的区别</h2><p>进程是一个独立的运行环境，而线程是在进程中执行的一个任务。他们两个本质的区别是<strong>是否单独占有内存地址空间及其它系统资源（比如I/O）</strong>：</p>
+<ul>
+<li>进程单独占有一定的内存地址空间，所以进程间存在内存隔离，数据是分开的，数据共享复杂但是同步简单，各个进程之间互不干扰；而线程共享所属进程占有的内存地址空间和资源，数据共享简单，但是同步复杂。</li>
+<li>进程单独占有一定的内存地址空间，一个进程出现问题不会影响其他进程，不影响主程序的稳定性，可靠性高；一个线程崩溃可能影响整个程序的稳定性，可靠性较低。</li>
+<li>进程单独占有一定的内存地址空间，进程的创建和销毁不仅需要保存寄存器和栈信息，还需要资源的分配回收以及页调度，开销较大；线程只需要保存寄存器和栈信息，开销较小。</li>
+</ul>
+<p>另外一个重要区别是，<strong>进程是操作系统进行资源分配的基本单位，而线程是操作系统进行调度的基本单位</strong>，即CPU分配时间的单位 。</p>
+<p><strong>进程是一个独立的运行环境，进程和进程之间是相互独立的，互不影响的，内存和数据都是独立的，故而进程之间进行数据共享是比较复杂的。</strong></p>
+<p><strong>线程是进程内部的一个子任务的执行者，多个线程同属一个进程，它们都在进程所属的内存空间中执行任务，使用的内存都是进程的内存，内存可以共享，故而线程之间进行数据共享相对简单。</strong></p>
+<h2 id="4-上下文切换"><a href="#4-上下文切换" class="headerlink" title="4. 上下文切换"></a>4. 上下文切换</h2><p>上下文切换（有时也称做进程切换或任务切换）是指 CPU 从一个进程（或线程）切换到另一个进程（或线程）。上下文是指<strong>某一时间点 CPU 寄存器和程序计数器的内容。</strong></p>
+<blockquote>
+<p>寄存器是CPU内部的少量的速度很快的闪存，通常存储和访问计算过程的中间值提高计算机程序的运行速度。简单来说就是一个缓存，用于存储上下文切换时的数据，以便再次切换回来的时候提取数据，提升程序的性能。</p>
+<p>程序计数器是一个专用的寄存器，用于表明指令序列中 CPU 正在执行的位置，存的值为正在执行的指令的位置或者下一个将要被执行的指令的位置，具体实现依赖于特定的系统。简单来说就是记录代码执行到了哪个位置，等再次切换回来的时候，就接着从这个位置执行代码。</p>
+<p>举例说明 线程A - B</p>
+<p>1.先挂起线程A，将其在CPU中的状态保存在内存中。</p>
+<p>2.在内存中检索下一个线程B的上下文并将其在 CPU 的寄存器中恢复,执行B线程。</p>
+<p>3.当B执行完，根据程序计数器中指向的位置恢复线程A。</p>
+</blockquote>
+<p>CPU通过为每个线程分配CPU时间片来实现多线程机制。CPU通过时间片分配算法来循环执行任务，当前任务执行一个时间片后会切换到下一个任务。</p>
+<p>但是，在切换前会保存上一个任务的状态，以便下次切换回这个任务时，可以再加载这个任务的状态。所以任务从保存到再加载的过程就是一次上下文切换。</p>
+<p>上下文切换通常是计算密集型的，意味着此操作会<strong>消耗大量的 CPU 时间，故线程也不是越多越好</strong>。如何减少系统中上下文切换次数，是提升多线程性能的一个重点课题。</p>
+]]></content>
+      <categories>
+        <category>OS</category>
+      </categories>
+      <tags>
+        <tag>进程和线程</tag>
+        <tag>OS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>细说SpringBoot的自动装配原理(下)</title>
     <url>/SpringBoot/springboot-autoconf2/</url>
     <content><![CDATA[<p>上一篇说到@SpringBootApplication注解的作用，这一篇文章我们就从启动类来说明。一般的我们写启动类大体都如下：</p>
@@ -48,227 +138,6 @@
 
 <p>启动监听器监听上下文，具体的监听器除了Spring事先准配好的，还有你自己实现的监听器。最终都是一个个的java.util.function.Consumer接口的实现类，然后执行这个接口的accept方法。</p>
 <p>以上就是springboot自动配置的全部了，大家如果对我的理解有疑问可以指出来，我们交流探讨一下。</p>
-]]></content>
-      <categories>
-        <category>SpringBoot</category>
-      </categories>
-      <tags>
-        <tag>SpringBoot</tag>
-        <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MySQL索引及其优化</title>
-    <url>/Database/mysql-index/</url>
-    <content><![CDATA[<p>索引是在存储引擎层实现的，而不是在服务器层实现的，所以不同存储引擎具有不同的索引类型和实现。</p>
-<p>MySQL的索引类型有很多，但是我们常用的索引类型一般就两种：<strong>B+Tree 索引</strong>和<strong>Hash索引</strong>。我们详细介绍一下这两种索引及其优化的方法。<span id="more"></span></p>
-<h2 id="1-B-Tree-索引"><a href="#1-B-Tree-索引" class="headerlink" title="1. B+Tree 索引"></a>1. B+Tree 索引</h2><p>B+ Tree索引是大多数 MySQL 存储引擎的默认索引类型。它将对数据的无序IO操作变成了顺序IO操作。至于什么是B-Tree树，即平衡树(Balance Tree)，更具体的请自行百度了解。</p>
-<p>因为不再需要进行全表扫描，只需要对树进行搜索即可，所以查找速度快很多。</p>
-<p>因为 B+ Tree 的有序性，所以除了用于查找，还可以用于排序和分组。</p>
-<p>可以指定多个列作为索引列，多个索引列共同组成键。</p>
-<p><strong>适用于全键值、键值范围和键前缀查找，其中键前缀查找只适用于最左前缀查找。如果不是按照索引列的顺序进行查找，则无法使用索引。</strong></p>
-<h2 id="2-Hash-索引"><a href="#2-Hash-索引" class="headerlink" title="2. Hash 索引"></a>2. Hash 索引</h2><p>哈希索引能以 O(1) 时间进行查找，但是失去了有序性：</p>
-<ul>
-<li>无法用于排序与分组；</li>
-<li>只支持精确查找，无法用于部分查找和范围查找。</li>
-</ul>
-<p>InnoDB 存储引擎有一个特殊的功能叫“自适应哈希索引”，当某个索引值被使用的非常频繁时，会在 B+Tree 索引之上再创建一个哈希索引，这样就让 B+Tree 索引具有哈希索引的一些优点，比如快速的哈希查找。</p>
-<h3 id="3-总结两种类型的索引"><a href="#3-总结两种类型的索引" class="headerlink" title="3. 总结两种类型的索引"></a>3. 总结两种类型的索引</h3><ul>
-<li>B+Tree-INDEX: 每一个叶子节点都包含指向下一个叶子节点的指针，从而方便叶子节点的范围遍历。B-Tree通常意味着所有的值都是按顺序存储的，并且每一个叶子页到根的距离相同，<strong>很适合查找范围数据</strong>。所以可以对诸如时间类型的字段加B+Tree索引。</li>
-<li>Hash-INDEX: 哈希索引基于哈希表实现，<strong>只有精确索引所有列的查询才有效</strong>。对于每一行数据，存储引擎都会对所有的索引列计算一个哈希码。哈希索引将所有的哈希码存储在索引中，同时在哈希表中保存指向每个数据的指针。</li>
-</ul>
-<h2 id="4-索引优化"><a href="#4-索引优化" class="headerlink" title="4. 索引优化"></a>4. 索引优化</h2><ul>
-<li><p>索引列的顺序：让选择性最强的索引列放在前面。比如一个表的主键就是选择性最强的。</p>
-</li>
-<li><p>对于 BLOB、TEXT 和 VARCHAR 类型的列，必须使用前缀索引，只索引开始的部分字符。必须遵循最左匹配原则。</p>
-</li>
-<li><p>独立的列，不参与表达式：</p>
-<p>在进行查询时，索引列不能是表达式的一部分，也不能是函数的参数，否则无法使用索引。</p>
-<p>例如下面的查询不能使用 actor_id 列的索引：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT actor_id FROM sakila.actor WHERE actor_id + 1 &#x3D; 5;</span><br></pre></td></tr></table></figure></li>
-<li><p>在需要使用多个列作为条件进行查询时，使用多列索引比使用多个单列索引性能更好。</p>
-<p>例如下面的语句中，最好把 actor_id 和 film_id 设置为多列索引：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SELECT film_id, actor_ id FROM sakila.film_actor</span><br><span class="line">WHERE actor_id &#x3D; 1 AND film_id &#x3D; 1;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<p>以上就是我对索引优化的简单总结，后面我会介绍一些其他的优化方式，比如主从复制，读写分离，SQL优化等等。</p>
-]]></content>
-      <categories>
-        <category>Database</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-        <tag>MySQL索引</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>细说SpringBoot的自动装配原理(上)</title>
-    <url>/SpringBoot/springboot-autoconf1/</url>
-    <content><![CDATA[<h2 id="1-什么是SpringBoot"><a href="#1-什么是SpringBoot" class="headerlink" title="1. 什么是SpringBoot?"></a>1. 什么是SpringBoot?</h2><p>对于spring家族的框架来说，我们接触的比较多的可能就是spring，springMVC这两个框架了。<strong>Spring的核心就是IOC和AOP。IOC就是控制反转，即将对象的创建，对象的销毁，对象间的依赖关系等等权力交给Spring，说白了就是让Spring去控制对象的生命周期和对象间的依赖关系。在处理对象间的依赖关系的时候，我们只需要告诉Spring我们需要哪些对象，Spring就会帮助我们配置好，Spring将我们需要的对象配置好的过程就是DI(依赖注入)。AOP就是面向切面编程，面向切面编程是一种思想，Spring框架很优雅的实现了这种思想，它很方便的帮助我们在全局的纵向业务逻辑之上，横向的插入一段逻辑。</strong></p>
-<p>在以前没有SpringBoot的时候，我们需要配置的方式是在XML文件中配置好对象的依赖关系，Spring它会读取这些XML文件，从而进行配置。但是当代码变多的时候，需要的配置会越来越多，大量繁琐的XML文件让我们使用Spring框架很是麻烦(为什么Spring一开始要使用XML文件，其实这和注解出现的版本(Java1.5)有很大的关系)，Spring框架本身是优雅的，轻量级的，但是它的配置却是繁琐的，重量级的。为了减轻这种繁琐的工作，提升工作效率，SpringBoot应运而生，下面欢迎我们的主角SpringBoot。<span id="more"></span></p>
-<p>SpringBoot框架是个划时代的Java框架(个人观点)，它的核心思想就是<strong>约定优于配置</strong>。它将一些需要集成的配置已经提前帮我们配置好了，我们不用去关注这些，只需要按照约定的规则使用，就可以很好，很高效的处理业务。简单来说就是，SpringBoot框架是为了能够帮助使用Spring框架的开发者快速高效的构建一个基于Spirng框架以及Spring生态体系的应用解决方案。它是对“约定优于配置”这个理念下的一个最佳实践。因此它是一个服务于框架的框架，服务的范围是简化配置文件。SpringBoot的核心就是帮助我们简化配置，进行自动配置，自动配置的原理稍后会讲到。SpringBoot的另一个特点就是非常容易进行扩展自动配置，比如说你自己有需要配置的东西也可以集成到SpringBoot中，具体的就不细讲，大家可以自行百度。</p>
-<h2 id="2-SpringBoot的四大核心"><a href="#2-SpringBoot的四大核心" class="headerlink" title="2. SpringBoot的四大核心"></a>2. SpringBoot的四大核心</h2><p>我们先简单的构建一个简单的web项目:</p>
-<p>创建一个maven项目，在pom文件中引入以下依赖：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.4.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>创建启动类和一个测试的控制器：</p>
-<img src="/images/markdown_images/image-20210519171240347.png" alt="image-20210519171240347" style="zoom:50%;" />
-
-<p>访问<a href="http://127.0.0.1:8080/test%E5%B0%B1%E8%83%BD%E7%9C%8B%E5%88%B0%E5%A6%82%E4%B8%8B%E7%9A%84%E9%A1%B5%E9%9D%A2%EF%BC%9A">http://127.0.0.1:8080/test就能看到如下的页面：</a></p>
-<img src="/images/markdown_images/image-20210519172315409.png" alt="image-20210519172315409" style="zoom:50%;" />
-
-<p>随便定义一个Controller就能够访问得到，这是为什么呢？</p>
-<p>springboot是一个约定优于配置的产物，所以在快速构建web应用的背后，其实有很多的约定:</p>
-<ol>
-<li>项目结构层面，静态文件和页面模版的存放位置变成了src/main/resources对应的子目录下</li>
-<li>自动嵌入tomcat作为web容器对外提供http服务，默认使用8080端口监听</li>
-<li>自动装配springmvc必要的组件</li>
-</ol>
-<p>四大核心：</p>
-<ol>
-<li>EnableAutoConfiguration 自动装配</li>
-<li>Starter组件, 开箱即用</li>
-<li>Actuator 监控</li>
-<li>Spring Boot Cli 为Spring Cloud 提供了Spring Boot 命令行功能</li>
-</ol>
-<p>前三个特性我们经常用到，但是今天我们主要来细说一下第一个核心功能，EnableAutoConfiguration 的自动配置。</p>
-<h2 id="3-相关注解"><a href="#3-相关注解" class="headerlink" title="3. 相关注解"></a>3. 相关注解</h2><p>要了解SpringBoot的自动配置，我们必须先知道几类比较重要的注解。</p>
-<h3 id="3-1-Enable-注解"><a href="#3-1-Enable-注解" class="headerlink" title="3.1 @Enable*注解"></a>3.1 @Enable*注解</h3><p>Enable的意思启动，开启的意思，相当于开启某个功能。</p>
-<p>SpringBoot自带了很多Enable开头的注解，比如说：</p>
-<ul>
-<li>@EnableScheduling：开启任务计划的支持。</li>
-<li>@EnableAutoConfiguration：开启自动配置。</li>
-<li>@EnableAsync：开启异步支持。</li>
-</ul>
-<p>这些@Enable*注解，如果你观察的仔细地话，你会发现每个这样的注解都会带一个@Import注解，每个@Import注解的value都是一个配置类数组，一般都是一个配置类。那我们必须了解一下@Import注解了。</p>
-<h3 id="3-2-Import注解"><a href="#3-2-Import注解" class="headerlink" title="3.2 @Import注解"></a>3.2 @Import注解</h3><p>Import的意思是导入，引入的意思，在传统的spring项目中，我们使用XML进行对象依赖关系的配置，XML标签中就有一个<code>&lt;import resource/&gt;</code>标签，那你知道@Import注解的作用了嘛？@Import注解的作用就是将多个分开的配置合并到一个配置中去。这个注解有很多种用法，我们具体的来讲解一下，方便后面理解SpringBoot自动配置的原理。</p>
-<ol>
-<li><strong>直接在@Import注解的value属性上写配置类的Class</strong></li>
-</ol>
-<p>我给大家演示一下：</p>
-<p>首先我创建了两个包：<code>demo1</code>和<code>demo2</code></p>
-<img src="/images/markdown_images/image-20210519172605965.png" alt="image-20210519172605965" style="zoom:50%;" />
-
-<p>两个包下的代码如下：</p>
-<ul>
-<li><p>demo1</p>
-<p><code>Demo1.class</code>：</p>
-<img src="/images/markdown_images/image-20210519172630847.png" alt="image-20210519172630847" style="zoom:50%;" />
-
-<p><code>Demo1Conf.class</code>：</p>
-<img src="/images/markdown_images/image-20210519172654486.png" alt="image-20210519172654486" style="zoom:50%;" /></li>
-<li><p>demo2</p>
-<p><code>Demo2.class</code>：</p>
-<img src="/images/markdown_images/image-20210519172709180.png" alt="image-20210519172709180" style="zoom:50%;" />
-
-<p><code>Demo2Conf.class</code>：</p>
-<img src="/images/markdown_images/image-20210519172719291.png" alt="image-20210519172719291" style="zoom:50%;" />
-
-<p><code>Demo2App.class</code>：</p>
-<img src="/images/markdown_images/image-20210519172734287.png" alt="image-20210519172734287" style="zoom:50%;" /></li>
-</ul>
-<p>我们先看下结果：</p>
-<img src="/images/markdown_images/image-20210519172745857.png" alt="image-20210519172745857" style="zoom:50%;" />
-
-<p>这两个包的代码很清楚，我在demo2包下面创建了一个SpringBoot应用，按照SpringBoot应用启动类的规则，它会加载当前包以及子包下的配置。但是demo1包其实是和demo2包是平级的包，SpringBoot是不会去加载demo1包下的配置，但是我们手动在配置类<code>Demo2Conf.class</code>配置类上加上了@Import注解，将<code>Demo1Conf.class</code>配置加载进来了，代码很直观，相信聪明的你已经懂了，下面我们看第二种方式。</p>
-<ol start="2">
-<li><p><strong>实现ImportSelector接口的方式</strong></p>
-<p>上面讲的第一种方式会将导入的配置类中所有的配置都加载到Spring应用中，但是我们想要有选择地加载配置的话，就要使用第二种方式，实现ImportSelector接口的方式。</p>
-<p>我们先看看SpringBoot提供的接口<code>org.springframework.context.annotation.ImportSelector</code>:</p>
-<img src="/images/markdown_images/image-20210519175256876.png" alt="image-20210519175256876" style="zoom:50%;" /></li>
-</ol>
-<p>第一个红框的注释说明了这个接口通常和@Import注解有相同的处理，通常配合起来使用。</p>
-<p>第二个红框的注释说明了这个方法主要是来表明哪些类需要加载到Spring容器中，返回值是一个类的全包名数组，这个数据就是要加载到Spring容器中的Bean。也就是说这个数组是你可以写逻辑来控制要加载哪些Bean的，接下来我们写一个简单的例子。</p>
-<p>我们先创建一个User实体类:</p>
-<p>注意我在空参构造方法中给两个属性赋值了。</p>
-<img src="/images/markdown_images/image-20210519180151512.png" alt="image-20210519180151512" style="zoom:50%;" />
-
-<p>再写一个类实现ImportSelector接口，实现接口方法将User加载到Spring容器中，其他的什么也不做：</p>
-<img src="/images/markdown_images/image-20210519180111291.png" alt="image-20210519180111291" style="zoom:50%;" />
-
-<p>然后我们定义一个注解，注解中使用@Import注解，将我们刚实现的导入选择器加载:</p>
-<img src="/images/markdown_images/image-20210519180415663.png" alt="image-20210519180415663" style="zoom:50%;" />
-
-<p>最后我们在启动类上加上这个注解，同时写一个控制器，返回一个User对象:</p>
-<img src="/images/markdown_images/image-20210519180519083.png" alt="image-20210519180519083" style="zoom:50%;" />
-
-<p>启动应用，访问<a href="http://localhost:8080/user%EF%BC%8C%E6%88%91%E4%BB%AC%E4%BC%9A%E7%9C%8B%E5%88%B0%E5%A6%82%E4%B8%8B%E9%A1%B5%E9%9D%A2">http://localhost:8080/user，我们会看到如下页面</a>:</p>
-<img src="/images/markdown_images/image-20210519180631316.png" alt="image-20210519180631316" style="zoom:50%;" />
-
-<p>说明user对象加载到Spring容器中去了，注意，在没有特殊声明的情况下，加载到Spring容器中的Bean对象默认就是类名称的小驼峰写法。</p>
-<ol start="3">
-<li><strong>实现ImportBeanDefinitionRegistrar接口的方式</strong></li>
-</ol>
-<p>我们将刚刚的TestImportSelector类稍微改造一下，实现这个接口，然后在方法中加载一个beanName为wjfUser的User对象:</p>
-<img src="/images/markdown_images/image-20210519181626915.png" alt="image-20210519181626915" style="zoom:50%;" />
-
-<p>然后将启动类的依赖注入的User对象的名称改成wjfUser:</p>
-<img src="/images/markdown_images/image-20210519181816548.png" alt="image-20210519181816548" style="zoom:50%;" />
-
-<p>然后启动项目，访问<a href="http://localhost:8080/user,%E4%BC%9A%E5%BE%97%E5%88%B0%E5%92%8C%E5%88%9A%E5%88%9A%E4%B8%80%E6%A0%B7%E7%9A%84%E7%BB%93%E6%9E%9C%E3%80%82">http://localhost:8080/user,会得到和刚刚一样的结果。</a></p>
-<h3 id="3-3-ComponentScan注解和-Configuration注解"><a href="#3-3-ComponentScan注解和-Configuration注解" class="headerlink" title="3.3 @ComponentScan注解和@Configuration注解"></a>3.3 @ComponentScan注解和@Configuration注解</h3><p>这两个注解都比较简单，但是都很重要，如果是使用SpringBoot构建的应用，基本上都要使用这两个注解，我们简单了解一下这两个注解：</p>
-<p>@Configuration: 它是JavaConfig形式的基于Spring IOC容器的配置类使用的一种注解。如果大家细心一点就会发现Configuration注解的本质是一个Component注解，这个注解会被AnnotationConfigApplicationContext加载，而AnnotationConfigApplicationContext是ApplicationContext的一个具体实现，表示根据配置注解启动应用上下文。</p>
-<p>@ComponentScan: 扫描指定路径下的标识了需要装配的类，自动装配到spring的Ioc容器中。标识需要装配的类的形式主要是：@Component、@Repository、@Service、@Controller这类的注解标识的类。</p>
-<h2 id="4-深入SpringBoot自动配置原理"><a href="#4-深入SpringBoot自动配置原理" class="headerlink" title="4. 深入SpringBoot自动配置原理"></a>4. 深入SpringBoot自动配置原理</h2><p>SprngBoot的自动配置原理我会分为两次讲解，分为两条支线进行说明，此次我们从注解入手。</p>
-<p>首先我们先看一下<code>@SpringBootApplication</code>这个注解：</p>
-<img src="/images/markdown_images/image-20210530171357188.png" alt="image-20210530171357188" style="zoom:50%;" />
-
-<p>这个注解主要包含了两个比较重要的注解，一个就是@SpringBootConfiguration注解，另一个就是本文主讲的@EnableAutoConfigutation注解了，我们先简单的看一下@SpringBootConfiguration：</p>
-<img src="/images/markdown_images/image-20210530171718502.png" alt="image-20210530171718502" style="zoom:50%;" />
-
-<p>这个注解就做了一件事情，将启动类作为一个配置类，这就是为什么我们在启动类上除了@SpringBootApplication这个注解能生效，其他加在启动类上的Spring相关注解也能生效的一个原因。</p>
-<p>接下来我们重点看一下<code>@EnableAutoConfiguration</code>这个注解：</p>
-<img src="/images/markdown_images/image-20210530172606022.png" alt="image-20210530172606022" style="zoom:67%;" />
-
-<p>这个注解的作用毫无疑问，从名字就可以看出，即：启动自动配置。</p>
-<p>它也包含两个重要的注解：@AutoConfigurationPackage和@Import(AutoConfigurationImportSelector.class)。</p>
-<h3 id="4-1-AutoConfigurationPackage"><a href="#4-1-AutoConfigurationPackage" class="headerlink" title="4.1 @AutoConfigurationPackage"></a>4.1 @AutoConfigurationPackage</h3><p>我们先看看@AutoConfigurationPackage：</p>
-<img src="/images/markdown_images/image-20210530172900281.png" alt="image-20210530172900281" style="zoom:50%;" />
-
-<p>这个注解上面还有一个注解@Import，我们前面说到，这个注解的作用就是将其他类的配置引入到当前类中，所以我们需要重点的看一下</p>
-<p><code>AutoConfigurationPackages.Registrar.class</code>这个类：</p>
-<img src="/images/markdown_images/image-20210530173346648.png" alt="image-20210530173346648" style="zoom:50%;" />
-
-<p>我们前面在讲解的时候说到，@Import注解通常使用的三种方式中的最后一种就是实现ImportBeanDefinitionRegistrar接口，这个接口的作用就是定义bean，让Spring知道哪些类是要初始化为Bean放到容器中的。然后我们看registerBeanDefinitions这个方法，这个方法我在上面讲解@Import的第三种使用方式的时候讲过，就是定义bean然后注册，所以这个方法也是的，然后我们看看这个方法他注册了哪些bean，我们接着看，我们会发现PackageImports这个类通过注解元数据可以获取到包名数组，然后变成一个字符串数组：</p>
-<img src="/images/markdown_images/image-20210530174227592.png" alt="image-20210530174227592" style="zoom:50%;" />
-
-<p>那我们接着看PackageImports这个类到底干了什么：</p>
-<img src="/images/markdown_images/image-20210530174502039.png" alt="image-20210530174502039" style="zoom:50%;" />
-
-<p>这个类就一个构造方法，首先获取了@AutoConfigurationPackage这个注解的属性定义Map，然后从这个属性定义的Map中拿出了basePackages和basePackageClasses这两个属性，这两个属性我们就很熟悉了，我们发现在@SpingBootApplication注解上也能看到：</p>
-<img src="/images/markdown_images/image-20210530175204167.png" alt="image-20210530175204167" style="zoom:50%;" />
-
-<p>所以，显然易见，@SpringBootApplication注解上填的包名最终都会进入到这个类中进行处理，如果@SpringBootApplication注解上没有填写这个属性，那么SpringBoot就会自动将启动类所在的包名传进去。但是其实@SpringBootApplication注解的包扫描也是基于@ComponentScan这个注解实现的，这个注解我们说过，只要是@Component、@Repository、@Service、@Controller这类的注解标识的类都会加载到Spring容器中，<strong>所以你应该已经知道了@AutoConfigurationPackage这个注解的作用了吧，它会扫描所有用@ComponentScan注解标识的包名下的类，将这些包下标识了@Component、@Repository、@Service、@Controller这类的注解的类加载到Spring容器中作为一个Bean对象。</strong></p>
-<h3 id="4-2-Import-AutoConfigurationImportSelector-class"><a href="#4-2-Import-AutoConfigurationImportSelector-class" class="headerlink" title="4.2 @Import(AutoConfigurationImportSelector.class)"></a>4.2 @Import(AutoConfigurationImportSelector.class)</h3><p>前面已经说过@Import注解的作用了，此处是@Import注解的第二种用法，实现ImportSelector接口的方式。我们直接看AutoConfigurationImportSelector这个类吧：</p>
-<img src="/images/markdown_images/image-20210530200607402.png" alt="image-20210530200607402" style="zoom:50%;" />
-
-<p>我们先看getAutoConfigurationEntry这个方法：</p>
-<img src="/images/markdown_images/image-20210530201234893.png" alt="image-20210530201234893" style="zoom:50%;" />
-
-<p>这个方法基本上以及说明了SpringBoot自动配置的触发流程，获取配置信息，删除重复项(主要是配置可能重复了，需要整合到一块，提升性能)，获取排除的配置项以及过滤基本上都和org.springframework.boot.autoconfigure.condition包下的注解配置有关，我们重点就说一下获取候选配置这一块，所以我们看看图片中红框的方法getCandidateConfigurations：</p>
-<img src="/images/markdown_images/image-20210530202139127.png" alt="image-20210530202139127" style="zoom:50%;" />
-
-<p>这个方法中我们看到了一个类<code>SpringFactoriesLoader</code>,这个类是Spring框架的一个工具类，他的类的作用是：</p>
-<p><strong>Spring框架内内部使用的通用工厂加载机制。SpringFactoriesLoader从“META-INF/spring.factories”文件加载和实例化给定类型的工厂，这些文件可能存在于类路径中的多个 JAR 文件中。 spring.factories文件必须采用“ Properties格式，其中键是接口或抽象类的全限定名称，值是用逗号分隔的实现类名称列表。</strong></p>
-<p>我们看一下SpringFactoriesLoader.loadFactoryNames这个方法：</p>
-<img src="/images/markdown_images/image-20210530202851736.png" alt="image-20210530202851736" style="zoom:50%;" />
-
-<p>这个方法的里面又调用了一个静态方法：</p>
-<img src="/images/markdown_images/image-20210530203342931.png" alt="image-20210530203342931" style="zoom:50%;" />
-
-<p>这个时候就知道了，Spring将这个文件转化为Properties,然后以英文逗号分割value，将获得的实现类的类名用List装起来，然后用接口(key，即这些实现类的接口的类名)名称为key,实现类类名列表为value放在一个map集合中返回。</p>
-<p>这个配置文件(即：META-INF/spring.factories)通常是一些其他第三方框架需要集成SpringBoot的时候，需要进行编写的，例如Mybatis,我们引入mybatis整合SpringBoot的jar包，在jar包下面找到了spring.factories文件，文件内就几行，我们来分析一下Mybatis是如何集成SpringBoot的。</p>
-<img src="/images/markdown_images/image-20210530204054176.png" alt="image-20210530204054176" style="zoom:50%;" />
-
-<p>在文件中我们看到mybatis自己写了一个实现类：MybatisAutoConfiguration，那么SpringBoot就会将这个类加载到Spring容器中，那我们看一下这个类：</p>
-<img src="/images/markdown_images/image-20210530204654360.png" alt="image-20210530204654360" style="zoom:50%;" />
-
-<p>Mybatis将这个类写成了一个配置类，还使用了org.springframework.boot.autoconfigure.condition包下的两个条件注解，这两个注解的作用是：</p>
-<ol>
-<li>@ConditionalOnClass({ SqlSessionFactory.class, SqlSessionFactoryBean.class })：当类路径下存在SqlSessionFactory和SqlSessionFactoryBean这两个类时才会启动配置类。</li>
-<li>@ConditionalOnBean(DataSource.class)：当Spring容器中存在一个DataSource的bean对象时，才会启动这个配置类。</li>
-</ol>
-<p>另外两个注解，一个是加载在bootstrap.yml文件中写的mybatis配置信息，另一个就是数据库连接信息自动配置，大家可以自行深入了解。</p>
-<p>以上就是@SpringBootApplication这个注解的分析，这只是加载自动配置的一部分，另一部分请看下篇，鉴于本人知识有限，如果对我的讲解有疑问，欢迎打扰，让我们共同进步！</p>
 ]]></content>
       <categories>
         <category>SpringBoot</category>
@@ -577,6 +446,184 @@
         <tag>MySQL索引</tag>
         <tag>事务</tag>
         <tag>SQL优化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>细说SpringBoot的自动装配原理(上)</title>
+    <url>/SpringBoot/springboot-autoconf1/</url>
+    <content><![CDATA[<h2 id="1-什么是SpringBoot"><a href="#1-什么是SpringBoot" class="headerlink" title="1. 什么是SpringBoot?"></a>1. 什么是SpringBoot?</h2><p>对于spring家族的框架来说，我们接触的比较多的可能就是spring，springMVC这两个框架了。<strong>Spring的核心就是IOC和AOP。IOC就是控制反转，即将对象的创建，对象的销毁，对象间的依赖关系等等权力交给Spring，说白了就是让Spring去控制对象的生命周期和对象间的依赖关系。在处理对象间的依赖关系的时候，我们只需要告诉Spring我们需要哪些对象，Spring就会帮助我们配置好，Spring将我们需要的对象配置好的过程就是DI(依赖注入)。AOP就是面向切面编程，面向切面编程是一种思想，Spring框架很优雅的实现了这种思想，它很方便的帮助我们在全局的纵向业务逻辑之上，横向的插入一段逻辑。</strong></p>
+<p>在以前没有SpringBoot的时候，我们需要配置的方式是在XML文件中配置好对象的依赖关系，Spring它会读取这些XML文件，从而进行配置。但是当代码变多的时候，需要的配置会越来越多，大量繁琐的XML文件让我们使用Spring框架很是麻烦(为什么Spring一开始要使用XML文件，其实这和注解出现的版本(Java1.5)有很大的关系)，Spring框架本身是优雅的，轻量级的，但是它的配置却是繁琐的，重量级的。为了减轻这种繁琐的工作，提升工作效率，SpringBoot应运而生，下面欢迎我们的主角SpringBoot。<span id="more"></span></p>
+<p>SpringBoot框架是个划时代的Java框架(个人观点)，它的核心思想就是<strong>约定优于配置</strong>。它将一些需要集成的配置已经提前帮我们配置好了，我们不用去关注这些，只需要按照约定的规则使用，就可以很好，很高效的处理业务。简单来说就是，SpringBoot框架是为了能够帮助使用Spring框架的开发者快速高效的构建一个基于Spirng框架以及Spring生态体系的应用解决方案。它是对“约定优于配置”这个理念下的一个最佳实践。因此它是一个服务于框架的框架，服务的范围是简化配置文件。SpringBoot的核心就是帮助我们简化配置，进行自动配置，自动配置的原理稍后会讲到。SpringBoot的另一个特点就是非常容易进行扩展自动配置，比如说你自己有需要配置的东西也可以集成到SpringBoot中，具体的就不细讲，大家可以自行百度。</p>
+<h2 id="2-SpringBoot的四大核心"><a href="#2-SpringBoot的四大核心" class="headerlink" title="2. SpringBoot的四大核心"></a>2. SpringBoot的四大核心</h2><p>我们先简单的构建一个简单的web项目:</p>
+<p>创建一个maven项目，在pom文件中引入以下依赖：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.4.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>创建启动类和一个测试的控制器：</p>
+<img src="/images/markdown_images/image-20210519171240347.png" alt="image-20210519171240347" style="zoom:50%;" />
+
+<p>访问<a href="http://127.0.0.1:8080/test%E5%B0%B1%E8%83%BD%E7%9C%8B%E5%88%B0%E5%A6%82%E4%B8%8B%E7%9A%84%E9%A1%B5%E9%9D%A2%EF%BC%9A">http://127.0.0.1:8080/test就能看到如下的页面：</a></p>
+<img src="/images/markdown_images/image-20210519172315409.png" alt="image-20210519172315409" style="zoom:50%;" />
+
+<p>随便定义一个Controller就能够访问得到，这是为什么呢？</p>
+<p>springboot是一个约定优于配置的产物，所以在快速构建web应用的背后，其实有很多的约定:</p>
+<ol>
+<li>项目结构层面，静态文件和页面模版的存放位置变成了src/main/resources对应的子目录下</li>
+<li>自动嵌入tomcat作为web容器对外提供http服务，默认使用8080端口监听</li>
+<li>自动装配springmvc必要的组件</li>
+</ol>
+<p>四大核心：</p>
+<ol>
+<li>EnableAutoConfiguration 自动装配</li>
+<li>Starter组件, 开箱即用</li>
+<li>Actuator 监控</li>
+<li>Spring Boot Cli 为Spring Cloud 提供了Spring Boot 命令行功能</li>
+</ol>
+<p>前三个特性我们经常用到，但是今天我们主要来细说一下第一个核心功能，EnableAutoConfiguration 的自动配置。</p>
+<h2 id="3-相关注解"><a href="#3-相关注解" class="headerlink" title="3. 相关注解"></a>3. 相关注解</h2><p>要了解SpringBoot的自动配置，我们必须先知道几类比较重要的注解。</p>
+<h3 id="3-1-Enable-注解"><a href="#3-1-Enable-注解" class="headerlink" title="3.1 @Enable*注解"></a>3.1 @Enable*注解</h3><p>Enable的意思启动，开启的意思，相当于开启某个功能。</p>
+<p>SpringBoot自带了很多Enable开头的注解，比如说：</p>
+<ul>
+<li>@EnableScheduling：开启任务计划的支持。</li>
+<li>@EnableAutoConfiguration：开启自动配置。</li>
+<li>@EnableAsync：开启异步支持。</li>
+</ul>
+<p>这些@Enable*注解，如果你观察的仔细地话，你会发现每个这样的注解都会带一个@Import注解，每个@Import注解的value都是一个配置类数组，一般都是一个配置类。那我们必须了解一下@Import注解了。</p>
+<h3 id="3-2-Import注解"><a href="#3-2-Import注解" class="headerlink" title="3.2 @Import注解"></a>3.2 @Import注解</h3><p>Import的意思是导入，引入的意思，在传统的spring项目中，我们使用XML进行对象依赖关系的配置，XML标签中就有一个<code>&lt;import resource/&gt;</code>标签，那你知道@Import注解的作用了嘛？@Import注解的作用就是将多个分开的配置合并到一个配置中去。这个注解有很多种用法，我们具体的来讲解一下，方便后面理解SpringBoot自动配置的原理。</p>
+<ol>
+<li><strong>直接在@Import注解的value属性上写配置类的Class</strong></li>
+</ol>
+<p>我给大家演示一下：</p>
+<p>首先我创建了两个包：<code>demo1</code>和<code>demo2</code></p>
+<img src="/images/markdown_images/image-20210519172605965.png" alt="image-20210519172605965" style="zoom:50%;" />
+
+<p>两个包下的代码如下：</p>
+<ul>
+<li><p>demo1</p>
+<p><code>Demo1.class</code>：</p>
+<img src="/images/markdown_images/image-20210519172630847.png" alt="image-20210519172630847" style="zoom:50%;" />
+
+<p><code>Demo1Conf.class</code>：</p>
+<img src="/images/markdown_images/image-20210519172654486.png" alt="image-20210519172654486" style="zoom:50%;" /></li>
+<li><p>demo2</p>
+<p><code>Demo2.class</code>：</p>
+<img src="/images/markdown_images/image-20210519172709180.png" alt="image-20210519172709180" style="zoom:50%;" />
+
+<p><code>Demo2Conf.class</code>：</p>
+<img src="/images/markdown_images/image-20210519172719291.png" alt="image-20210519172719291" style="zoom:50%;" />
+
+<p><code>Demo2App.class</code>：</p>
+<img src="/images/markdown_images/image-20210519172734287.png" alt="image-20210519172734287" style="zoom:50%;" /></li>
+</ul>
+<p>我们先看下结果：</p>
+<img src="/images/markdown_images/image-20210519172745857.png" alt="image-20210519172745857" style="zoom:50%;" />
+
+<p>这两个包的代码很清楚，我在demo2包下面创建了一个SpringBoot应用，按照SpringBoot应用启动类的规则，它会加载当前包以及子包下的配置。但是demo1包其实是和demo2包是平级的包，SpringBoot是不会去加载demo1包下的配置，但是我们手动在配置类<code>Demo2Conf.class</code>配置类上加上了@Import注解，将<code>Demo1Conf.class</code>配置加载进来了，代码很直观，相信聪明的你已经懂了，下面我们看第二种方式。</p>
+<ol start="2">
+<li><p><strong>实现ImportSelector接口的方式</strong></p>
+<p>上面讲的第一种方式会将导入的配置类中所有的配置都加载到Spring应用中，但是我们想要有选择地加载配置的话，就要使用第二种方式，实现ImportSelector接口的方式。</p>
+<p>我们先看看SpringBoot提供的接口<code>org.springframework.context.annotation.ImportSelector</code>:</p>
+<img src="/images/markdown_images/image-20210519175256876.png" alt="image-20210519175256876" style="zoom:50%;" /></li>
+</ol>
+<p>第一个红框的注释说明了这个接口通常和@Import注解有相同的处理，通常配合起来使用。</p>
+<p>第二个红框的注释说明了这个方法主要是来表明哪些类需要加载到Spring容器中，返回值是一个类的全包名数组，这个数据就是要加载到Spring容器中的Bean。也就是说这个数组是你可以写逻辑来控制要加载哪些Bean的，接下来我们写一个简单的例子。</p>
+<p>我们先创建一个User实体类:</p>
+<p>注意我在空参构造方法中给两个属性赋值了。</p>
+<img src="/images/markdown_images/image-20210519180151512.png" alt="image-20210519180151512" style="zoom:50%;" />
+
+<p>再写一个类实现ImportSelector接口，实现接口方法将User加载到Spring容器中，其他的什么也不做：</p>
+<img src="/images/markdown_images/image-20210519180111291.png" alt="image-20210519180111291" style="zoom:50%;" />
+
+<p>然后我们定义一个注解，注解中使用@Import注解，将我们刚实现的导入选择器加载:</p>
+<img src="/images/markdown_images/image-20210519180415663.png" alt="image-20210519180415663" style="zoom:50%;" />
+
+<p>最后我们在启动类上加上这个注解，同时写一个控制器，返回一个User对象:</p>
+<img src="/images/markdown_images/image-20210519180519083.png" alt="image-20210519180519083" style="zoom:50%;" />
+
+<p>启动应用，访问<a href="http://localhost:8080/user%EF%BC%8C%E6%88%91%E4%BB%AC%E4%BC%9A%E7%9C%8B%E5%88%B0%E5%A6%82%E4%B8%8B%E9%A1%B5%E9%9D%A2">http://localhost:8080/user，我们会看到如下页面</a>:</p>
+<img src="/images/markdown_images/image-20210519180631316.png" alt="image-20210519180631316" style="zoom:50%;" />
+
+<p>说明user对象加载到Spring容器中去了，注意，在没有特殊声明的情况下，加载到Spring容器中的Bean对象默认就是类名称的小驼峰写法。</p>
+<ol start="3">
+<li><strong>实现ImportBeanDefinitionRegistrar接口的方式</strong></li>
+</ol>
+<p>我们将刚刚的TestImportSelector类稍微改造一下，实现这个接口，然后在方法中加载一个beanName为wjfUser的User对象:</p>
+<img src="/images/markdown_images/image-20210519181626915.png" alt="image-20210519181626915" style="zoom:50%;" />
+
+<p>然后将启动类的依赖注入的User对象的名称改成wjfUser:</p>
+<img src="/images/markdown_images/image-20210519181816548.png" alt="image-20210519181816548" style="zoom:50%;" />
+
+<p>然后启动项目，访问<a href="http://localhost:8080/user,%E4%BC%9A%E5%BE%97%E5%88%B0%E5%92%8C%E5%88%9A%E5%88%9A%E4%B8%80%E6%A0%B7%E7%9A%84%E7%BB%93%E6%9E%9C%E3%80%82">http://localhost:8080/user,会得到和刚刚一样的结果。</a></p>
+<h3 id="3-3-ComponentScan注解和-Configuration注解"><a href="#3-3-ComponentScan注解和-Configuration注解" class="headerlink" title="3.3 @ComponentScan注解和@Configuration注解"></a>3.3 @ComponentScan注解和@Configuration注解</h3><p>这两个注解都比较简单，但是都很重要，如果是使用SpringBoot构建的应用，基本上都要使用这两个注解，我们简单了解一下这两个注解：</p>
+<p>@Configuration: 它是JavaConfig形式的基于Spring IOC容器的配置类使用的一种注解。如果大家细心一点就会发现Configuration注解的本质是一个Component注解，这个注解会被AnnotationConfigApplicationContext加载，而AnnotationConfigApplicationContext是ApplicationContext的一个具体实现，表示根据配置注解启动应用上下文。</p>
+<p>@ComponentScan: 扫描指定路径下的标识了需要装配的类，自动装配到spring的Ioc容器中。标识需要装配的类的形式主要是：@Component、@Repository、@Service、@Controller这类的注解标识的类。</p>
+<h2 id="4-深入SpringBoot自动配置原理"><a href="#4-深入SpringBoot自动配置原理" class="headerlink" title="4. 深入SpringBoot自动配置原理"></a>4. 深入SpringBoot自动配置原理</h2><p>SprngBoot的自动配置原理我会分为两次讲解，分为两条支线进行说明，此次我们从注解入手。</p>
+<p>首先我们先看一下<code>@SpringBootApplication</code>这个注解：</p>
+<img src="/images/markdown_images/image-20210530171357188.png" alt="image-20210530171357188" style="zoom:50%;" />
+
+<p>这个注解主要包含了两个比较重要的注解，一个就是@SpringBootConfiguration注解，另一个就是本文主讲的@EnableAutoConfigutation注解了，我们先简单的看一下@SpringBootConfiguration：</p>
+<img src="/images/markdown_images/image-20210530171718502.png" alt="image-20210530171718502" style="zoom:50%;" />
+
+<p>这个注解就做了一件事情，将启动类作为一个配置类，这就是为什么我们在启动类上除了@SpringBootApplication这个注解能生效，其他加在启动类上的Spring相关注解也能生效的一个原因。</p>
+<p>接下来我们重点看一下<code>@EnableAutoConfiguration</code>这个注解：</p>
+<img src="/images/markdown_images/image-20210530172606022.png" alt="image-20210530172606022" style="zoom:67%;" />
+
+<p>这个注解的作用毫无疑问，从名字就可以看出，即：启动自动配置。</p>
+<p>它也包含两个重要的注解：@AutoConfigurationPackage和@Import(AutoConfigurationImportSelector.class)。</p>
+<h3 id="4-1-AutoConfigurationPackage"><a href="#4-1-AutoConfigurationPackage" class="headerlink" title="4.1 @AutoConfigurationPackage"></a>4.1 @AutoConfigurationPackage</h3><p>我们先看看@AutoConfigurationPackage：</p>
+<img src="/images/markdown_images/image-20210530172900281.png" alt="image-20210530172900281" style="zoom:50%;" />
+
+<p>这个注解上面还有一个注解@Import，我们前面说到，这个注解的作用就是将其他类的配置引入到当前类中，所以我们需要重点的看一下</p>
+<p><code>AutoConfigurationPackages.Registrar.class</code>这个类：</p>
+<img src="/images/markdown_images/image-20210530173346648.png" alt="image-20210530173346648" style="zoom:50%;" />
+
+<p>我们前面在讲解的时候说到，@Import注解通常使用的三种方式中的最后一种就是实现ImportBeanDefinitionRegistrar接口，这个接口的作用就是定义bean，让Spring知道哪些类是要初始化为Bean放到容器中的。然后我们看registerBeanDefinitions这个方法，这个方法我在上面讲解@Import的第三种使用方式的时候讲过，就是定义bean然后注册，所以这个方法也是的，然后我们看看这个方法他注册了哪些bean，我们接着看，我们会发现PackageImports这个类通过注解元数据可以获取到包名数组，然后变成一个字符串数组：</p>
+<img src="/images/markdown_images/image-20210530174227592.png" alt="image-20210530174227592" style="zoom:50%;" />
+
+<p>那我们接着看PackageImports这个类到底干了什么：</p>
+<img src="/images/markdown_images/image-20210530174502039.png" alt="image-20210530174502039" style="zoom:50%;" />
+
+<p>这个类就一个构造方法，首先获取了@AutoConfigurationPackage这个注解的属性定义Map，然后从这个属性定义的Map中拿出了basePackages和basePackageClasses这两个属性，这两个属性我们就很熟悉了，我们发现在@SpingBootApplication注解上也能看到：</p>
+<img src="/images/markdown_images/image-20210530175204167.png" alt="image-20210530175204167" style="zoom:50%;" />
+
+<p>所以，显然易见，@SpringBootApplication注解上填的包名最终都会进入到这个类中进行处理，如果@SpringBootApplication注解上没有填写这个属性，那么SpringBoot就会自动将启动类所在的包名传进去。但是其实@SpringBootApplication注解的包扫描也是基于@ComponentScan这个注解实现的，这个注解我们说过，只要是@Component、@Repository、@Service、@Controller这类的注解标识的类都会加载到Spring容器中，<strong>所以你应该已经知道了@AutoConfigurationPackage这个注解的作用了吧，它会扫描所有用@ComponentScan注解标识的包名下的类，将这些包下标识了@Component、@Repository、@Service、@Controller这类的注解的类加载到Spring容器中作为一个Bean对象。</strong></p>
+<h3 id="4-2-Import-AutoConfigurationImportSelector-class"><a href="#4-2-Import-AutoConfigurationImportSelector-class" class="headerlink" title="4.2 @Import(AutoConfigurationImportSelector.class)"></a>4.2 @Import(AutoConfigurationImportSelector.class)</h3><p>前面已经说过@Import注解的作用了，此处是@Import注解的第二种用法，实现ImportSelector接口的方式。我们直接看AutoConfigurationImportSelector这个类吧：</p>
+<img src="/images/markdown_images/image-20210530200607402.png" alt="image-20210530200607402" style="zoom:50%;" />
+
+<p>我们先看getAutoConfigurationEntry这个方法：</p>
+<img src="/images/markdown_images/image-20210530201234893.png" alt="image-20210530201234893" style="zoom:50%;" />
+
+<p>这个方法基本上以及说明了SpringBoot自动配置的触发流程，获取配置信息，删除重复项(主要是配置可能重复了，需要整合到一块，提升性能)，获取排除的配置项以及过滤基本上都和org.springframework.boot.autoconfigure.condition包下的注解配置有关，我们重点就说一下获取候选配置这一块，所以我们看看图片中红框的方法getCandidateConfigurations：</p>
+<img src="/images/markdown_images/image-20210530202139127.png" alt="image-20210530202139127" style="zoom:50%;" />
+
+<p>这个方法中我们看到了一个类<code>SpringFactoriesLoader</code>,这个类是Spring框架的一个工具类，他的类的作用是：</p>
+<p><strong>Spring框架内内部使用的通用工厂加载机制。SpringFactoriesLoader从“META-INF/spring.factories”文件加载和实例化给定类型的工厂，这些文件可能存在于类路径中的多个 JAR 文件中。 spring.factories文件必须采用“ Properties格式，其中键是接口或抽象类的全限定名称，值是用逗号分隔的实现类名称列表。</strong></p>
+<p>我们看一下SpringFactoriesLoader.loadFactoryNames这个方法：</p>
+<img src="/images/markdown_images/image-20210530202851736.png" alt="image-20210530202851736" style="zoom:50%;" />
+
+<p>这个方法的里面又调用了一个静态方法：</p>
+<img src="/images/markdown_images/image-20210530203342931.png" alt="image-20210530203342931" style="zoom:50%;" />
+
+<p>这个时候就知道了，Spring将这个文件转化为Properties,然后以英文逗号分割value，将获得的实现类的类名用List装起来，然后用接口(key，即这些实现类的接口的类名)名称为key,实现类类名列表为value放在一个map集合中返回。</p>
+<p>这个配置文件(即：META-INF/spring.factories)通常是一些其他第三方框架需要集成SpringBoot的时候，需要进行编写的，例如Mybatis,我们引入mybatis整合SpringBoot的jar包，在jar包下面找到了spring.factories文件，文件内就几行，我们来分析一下Mybatis是如何集成SpringBoot的。</p>
+<img src="/images/markdown_images/image-20210530204054176.png" alt="image-20210530204054176" style="zoom:50%;" />
+
+<p>在文件中我们看到mybatis自己写了一个实现类：MybatisAutoConfiguration，那么SpringBoot就会将这个类加载到Spring容器中，那我们看一下这个类：</p>
+<img src="/images/markdown_images/image-20210530204654360.png" alt="image-20210530204654360" style="zoom:50%;" />
+
+<p>Mybatis将这个类写成了一个配置类，还使用了org.springframework.boot.autoconfigure.condition包下的两个条件注解，这两个注解的作用是：</p>
+<ol>
+<li>@ConditionalOnClass({ SqlSessionFactory.class, SqlSessionFactoryBean.class })：当类路径下存在SqlSessionFactory和SqlSessionFactoryBean这两个类时才会启动配置类。</li>
+<li>@ConditionalOnBean(DataSource.class)：当Spring容器中存在一个DataSource的bean对象时，才会启动这个配置类。</li>
+</ol>
+<p>另外两个注解，一个是加载在bootstrap.yml文件中写的mybatis配置信息，另一个就是数据库连接信息自动配置，大家可以自行深入了解。</p>
+<p>以上就是@SpringBootApplication这个注解的分析，这只是加载自动配置的一部分，另一部分请看下篇，鉴于本人知识有限，如果对我的讲解有疑问，欢迎打扰，让我们共同进步！</p>
+]]></content>
+      <categories>
+        <category>SpringBoot</category>
+      </categories>
+      <tags>
+        <tag>SpringBoot</tag>
+        <tag>Java</tag>
       </tags>
   </entry>
 </search>
